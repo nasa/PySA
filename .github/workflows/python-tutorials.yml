@@ -1,4 +1,4 @@
-name: Python PyTest
+name: Python Tutorials
 
 on:
   push:
@@ -23,7 +23,11 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install . pytest
+        pip install . papermill matplotlib plotly jupyter hyperopt torch torchvision
     - name: Test with pytest
       run: |
-        pytest tests/*.py
+        cd tutorials/
+        papermill example_ising.ipynb /dev/null
+        papermill hpo_demo.ipynb /dev/null
+        papermill ising_tutorial.ipynb /dev/null
+        papermill RBM_tutorial.ipynb /dev/null

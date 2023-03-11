@@ -1,6 +1,3 @@
-# This workflow will install Python YAPF and check format.
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
-
 name: Python YAPF
 
 on:
@@ -26,7 +23,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install yapf==0.30.0
+        pip install yapf==0.32.0
     - name: Check format with YAPF
       run: |
         yapf --style=google -d -r .
