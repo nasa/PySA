@@ -23,7 +23,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install .
+        pip install . termplotlib
     - name: Test with pytest
       run: |
         python examples/example_ising.py

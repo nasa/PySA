@@ -28,6 +28,6 @@ jobs:
       run: |
         cd tutorials/
         papermill example_ising.ipynb /dev/null
-        papermill tutorials/hpo_demo.ipynb /dev/null
+        papermill hpo_demo.ipynb /dev/null
         papermill ising_tutorial.ipynb /dev/null
         papermill RBM_tutorial.ipynb /dev/null
