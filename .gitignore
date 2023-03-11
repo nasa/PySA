@@ -1,0 +1,8 @@
+__*__
+.*.swp
+_*.o
+_*.c
+_*.so
+.ipynb_checkpoints/
+pysa.egg-info/
+build/

@@ -1,0 +1,12 @@
+name: pysa
+
+dependencies:
+  - pip
+  - mkl
+  - tbb
+  - numpy
+  - scipy
+  - numba
+  - pandas
+  - pip:
+    - ./

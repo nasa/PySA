@@ -1,0 +1,7 @@
+numpy
+scipy
+numba
+pandas
+tqdm
+pytest
+more_itertools
