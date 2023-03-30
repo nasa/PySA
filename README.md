@@ -15,7 +15,7 @@ Tutorials on how to use **PySA** can be found in
 [Ata Akbari Asanjan](https://github.com/) (Restricted Boltzmann Machine)<br>
 [Lucas Brady](https://github.com/) (Restricted Boltzmann Machine)<br>
 [Aaron Lott](https://github.com/) (Restricted Boltzmann Machine)<br>
-[David Bernal Neira](https://github.com/) (Hyper Parameters Optimization)<br>
+[David Bernal Neira](https://github.com/bernalde) (Hyper Parameters Optimization)<br>
 
 ## Installation
 
