@@ -1,0 +1,36 @@
+cff-version: 1.2.0
+title: 'PySA: Fast Simulated Annealing in Native Python'
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Salvatore
+    family-names: Mandra
+    orcid: 'https://orcid.org/0000-0002-3908-2694'
+    affiliation: NASA Ames Research Center
+    email: salvatore.mandra@nasa.gov
+  - given-names: Ata
+    family-names: Akbari Asanjan
+    email: ata.akbariasanjan@nasa.gov
+    affiliation: NASA Ames Research Center
+    orcid: 'https://orcid.org/0000-0002-8691-8212'
+  - given-names: Lucas
+    family-names: Brady
+    email: lucas.t.brady@nasa.gov
+    affiliation: NASA Ames Research Center
+    orcid: 'https://orcid.org/0000-0001-7696-7689'
+  - given-names: Aaron
+    family-names: Lott
+    email: aaron.lott@nasa.gov
+    affiliation: NASA Ames Research Center
+    orcid: 'https://orcid.org/0000-0002-9718-9641'
+  - given-names: David
+    name-particle: 'E. '
+    family-names: Bernal Neira
+    email: david.e.bernalneira@nasa.gov
+    affiliation: NASA Ames Research Center
+    orcid: 'https://orcid.org/0000-0002-8308-5016'
+repository-code: 'https://github.com/nasa/pysa'
+version: 0.1.0
+date-released: '2023-03-12'
