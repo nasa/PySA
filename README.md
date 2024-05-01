@@ -12,6 +12,7 @@ Tutorials on how to use **PySA** can be found in
 ## Contributors
 
 [Salvatore Mandrà](https://github.com/s-mandra) (PySA core)<br>
+[Humberto Munoz-Bauza](https://github.com/hmunozb) (PySA core)<br>
 [Ata Akbari Asanjan](https://github.com/) (Restricted Boltzmann Machine)<br>
 [Lucas Brady](https://github.com/) (Restricted Boltzmann Machine)<br>
 [Aaron Lott](https://github.com/) (Restricted Boltzmann Machine)<br>
