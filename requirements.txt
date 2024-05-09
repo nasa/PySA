@@ -1,0 +1,7 @@
+fire
+galois
+nistrng
+numba
+numpy
+python-sat
+tqdm
