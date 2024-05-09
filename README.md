@@ -92,6 +92,14 @@ The overall format is summarized as follows:
      ...
 ```
 
+How to install
+---
+
+The easiest way to install `genmci` is using `pip`:
+```
+pip install git+https://github.com/nasa/pysa@pysa-mceliece
+```
+
 MLD file format
 ----
 
