@@ -18,6 +18,13 @@ Tutorials on how to use **PySA** can be found in
 [Aaron Lott](https://github.com/) (Restricted Boltzmann Machine)<br>
 [David Bernal Neira](https://github.com/bernalde) (Hyper Parameters Optimization)<br>
 
+## Available Module
+
+**PySA** provides multiple modules that can be independently installed:
+* Generator of Random McEliece instances ([pysa-mceliece](https://github.com/nasa/PySA/tree/pysa-mceliece))
+* Branch-and-Bound Library with Workload Autobalance Between Threads and Nodes ([pysa-branching](https://github.com/nasa/PySA/tree/pysa-branching))
+* DPLL Implementation for SAT (including implementation of WalkSAT) based on `pysa-braching` ([pysa-dpll](https://github.com/nasa/PySA/tree/pysa-dpll))
+
 ## Installation
 
 **PySA** can be installed by using `pip` directly from the `GitHub` 
