@@ -1,0 +1,103 @@
+name: run-ctests
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        build_type: [ Release, Debug ]
+        os: [ ubuntu-22.04 ]
+        simde: [ON, OFF]
+        usempi: [OFF]
+        mpi: [no-mpi]
+        include:
+          - os: ubuntu-22.04
+            os_version: 22.04
+            compiler: gcc
+            cpp_compiler: g++
+#          - build_type: Release
+#            os: macos-13
+#            simde: ON
+#            os_version: 13
+#            compiler: clang
+#            cpp_compiler: clang++
+#            usempi: OFF
+          - build_type: Release
+            os: ubuntu-22.04
+            simde: ON
+            usempi: ON
+            mpi: openmpi
+            os_version: 22.04
+            compiler: gcc
+            cpp_compiler: g++
+#          - build_type: Release
+#            os: macos-13
+#            simde: ON
+#            usempi: ON
+#            mpi: openmpi
+#            os_version: 13
+#            compiler: clang
+#            cpp_compiler: clang++
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          submodules: 'true'
+
+      # macOS clang++ should interop with gfortran 13 and 14.
+      # Due to available options for these actions, gfortran 13 is tested without MPI,
+      # but gfortran 14 (latest) is tested with MPI
+      - uses: fortran-lang/setup-fortran@v1
+        if: ${{ matrix.os == 'macos-13' && matrix.usempi != 'ON' }}
+        id: setup-fortran
+        with:
+          compiler: gcc
+          version: 13
+      - name: Setup MPI
+        if: ${{ matrix.usempi == 'ON' }}
+        uses: mpi4py/setup-mpi@v1
+        with:
+          mpi: ${{ matrix.mpi }}
+      - if:  ${{ matrix.os != 'macos-13' || matrix.usempi == 'ON' }}
+        run: echo "FC=gfortran" >> $GITHUB_ENV
+      - name: Download and install Boost
+        uses: MarkusJx/install-boost@v2.4.5
+        id: install-boost
+        with:
+          boost_version: 1.84.0
+          toolset: ${{ matrix.compiler }}
+          platform_version: ${{ matrix.os_version }}
+      - name: Update LD_LIBRARY_PATH
+        run: echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${{ steps.install-boost.outputs.BOOST_ROOT }}/lib" >> $GITHUB_ENV
+      - name: Configure CMake
+        run: >
+          cmake -B ${{github.workspace}}/build
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+          -DCMAKE_Fortran_COMPILER=${{ env.FC }} 
+          -DBoost_INCLUDE_DIR=${{steps.install-boost.outputs.BOOST_ROOT}}/include
+          -DBoost_LIBRARY_DIRS=${{steps.install-boost.outputs.BOOST_ROOT}}/lib
+          -DMPI=${{ matrix.usempi }}
+          -DUSE_SIMDE=${{ matrix.simde }} -S ${{ github.workspace }}
+        env:
+          BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
+
+      - name: Build
+        shell: bash
+        run: cmake --build ${{github.workspace}}/build --config ${{ matrix.build_type }}
+        env:
+          VERBOSE: 1
+      - name: Env
+        run: env
+      - name: Test
+        working-directory: ${{github.workspace}}/build
+        run: ctest -C ${{ matrix.build_type }} --rerun-failed --output-on-failure --timeout 60
+
+
