@@ -2,9 +2,9 @@ name: run-ctests
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "pysa-stern" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "pysa-stern" ]
 
 jobs:
   build:
