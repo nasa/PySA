@@ -19,7 +19,7 @@ from ._sat import sat
 
 __all__ = ['app']
 
-# Description of tnco
+# Description of PySA-DPLL
 __description__ = "[bold][green]PySA-DPLL[/green][/bold]"
 
 # Initialize this app
