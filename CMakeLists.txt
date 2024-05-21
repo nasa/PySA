@@ -31,6 +31,17 @@ add_compile_options(-O3 -Wall -Wpedantic -Wfatal-errors)
 # Use MPI
 option(MPI "Build with MPI" OFF)
 
+# Find MPI package
+find_package(MPI)
+
+# If MPI exists, compile the code using MPI
+if (MPI AND MPI_FOUND)
+  message(STATUS "MPI Enabled")
+  add_compile_definitions(USE_MPI)
+  include_directories(${MPI_CXX_HEADER_DIR})
+  link_libraries(MPI::MPI_CXX)
+endif ()
+
 # Find pthreads
 find_package(Threads REQUIRED)
 
@@ -58,3 +69,4 @@ include_directories(${install_dir}/src/pysa-branching/include)
 add_subdirectory(src)
 add_subdirectory(tests)
 add_subdirectory(examples)
+add_subdirectory(include/pysa/python)

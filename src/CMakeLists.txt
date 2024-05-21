@@ -28,11 +28,3 @@ add_executable(dpll-sat.x dpll-sat.cpp)
 add_executable(walk-sat.x walk-sat.cpp)
 add_dependencies(dpll-sat.x pysa-branching)
 add_dependencies(walk-sat.x pysa-branching)
-
-# If MPI exists, compile the code using MPI
-if (MPI AND MPI_FOUND)
-  message(STATUS "MPI Enabled")
-  target_compile_definitions(dpll-sat.x PUBLIC USE_MPI)
-  target_include_directories(dpll-sat.x PUBLIC ${MPI_CXX_HEADER_DIR})
-  target_link_libraries(dpll-sat.x MPI::MPI_CXX)
-endif ()

@@ -1,14 +1,13 @@
 # Author: Salvatore Mandra (salvatore.mandra@nasa.gov)
-#         Humberto Munoz-Bauza (humberto.munozbauza@nasa.gov)
-# 
+#
 # Copyright © 2023, United States Government, as represented by the Administrator
 # of the National Aeronautics and Space Administration. All rights reserved.
-# 
+#
 # The PySA, a powerful tool for solving optimization problems is licensed under
 # the Apache License, Version 2.0 (the "License"); you may not use this file
 # except in compliance with the License. You may obtain a copy of the License at
 # http://www.apache.org/licenses/LICENSE-2.0.
-# 
+#
 # Unless required by applicable law or agreed to in writing, software distributed
 # under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
 # CONDITIONS OF ANY KIND, either express or implied. See the License for the
@@ -18,36 +17,23 @@
 cmake_minimum_required(VERSION 3.5)
 
 # Set the project name
-project(pysa-dpll-test LANGUAGES CXX)
+project(pysa-dpll-python LANGUAGES CXX)
 
-# Add PySA include
-include_directories(${CMAKE_SOURCE_DIR}/include)
+# Set the C++ standard to c++17
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Add executable to compile
-add_executable(test_dpll_sat.x test_dpll_sat.cpp)
-add_executable(test_walk_sat.x test_walk_sat.cpp)
-add_dependencies(test_dpll_sat.x pysa-branching)
-add_dependencies(test_walk_sat.x pysa-branching)
+# Use FindPython or FindPython3 module
+find_package(Python 3.8 REQUIRED COMPONENTS Interpreter Development)
 
-# Add target to compile all tests
-add_custom_target(tests
-  DEPENDS test_dpll_sat.x
-)
+# Check pybind11
+find_package(pybind11 REQUIRED)
 
-# Add target to run all tests
-add_custom_target(run_tests
-  COMMAND ctest
-  DEPENDS tests
-)
+# Get all source files
+file(GLOB_RECURSE SOURCES "./*.cpp")
 
-# Enable testing
-enable_testing()
-
-# Add braching test
-if (MPI AND MPI_FOUND)
-  add_test(NAME test_dpll_sat COMMAND mpirun -n 4 ./test_dpll_sat.x)
-else ()
-  add_test(NAME test_dpll_sat COMMAND ./test_dpll_sat.x)
-endif ()
-add_test(NAME test_walk_sat COMMAND ./test_walk_sat.x)
-set_tests_properties(test_dpll_sat PROPERTIES TIMEOUT 60)
+# Initialize PyBind11 library
+pybind11_add_module(pysa_dpll_core ${SOURCES})
+target_include_directories(pysa_dpll_core PRIVATE ${CMAKE_SOURCE_DIR}/include)
+add_dependencies(pysa_dpll_core pysa-branching)

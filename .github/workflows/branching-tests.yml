@@ -21,40 +21,48 @@ on:
   pull_request:
     branches: [ "pysa-dpll" ]
 
-env:
-  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
-  BUILD_TYPE: Release
-
 jobs:
   build:
-    # Test ubuntu only for now
     runs-on: ubuntu-latest
+
     strategy:
-      # Set fail-fast to false to ensure that feedback is delivered for all matrix combinations. Consider changing this to true when your workflow is stable.
-      fail-fast: false
+      fail-fast: true
 
       matrix:
         build_type: [ Release, Debug ]
         cpp_compiler: [ g++, clang++]
+        mpi: [ ON, OFF ]
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Install dependencies
+        run: |
+          sudo apt install -y mpich python3-pybind11 python3-dev
+
+      - name: Install Python CUI
+        run: |
+          pip install -U pip
+          pip install -U .
+
+      - name: Test Python CUI
+        run: >
+          echo -e 'p cnf 2 2\n1 2 0\n-1 -2 0' | pysa-dpll sat
+
       - name: Configure CMake
         run: >
-          cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-          -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
-          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-          -DMPI=OFF
-          -S ${{ github.workspace }}
+          cmake -B ${{github.workspace}}/build \
+                -S ${{ github.workspace }} \
+                -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+                -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
+                -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+                -DMPI=${{ matrix.mpi }}
 
       - name: Build
-        # Build your program with the given configuration
-        run: cmake --build ${{github.workspace}}/build --config ${{ matrix.build_type }}
+        run: cmake --build ${{github.workspace}}/build 
+                   --config ${{ matrix.build_type }}
 
       - name: Test
         working-directory: ${{github.workspace}}/build/tests
-        # Execute tests defined by the CMake configuration.
-        # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
         run: ctest -C ${{env.BUILD_TYPE}}
-
