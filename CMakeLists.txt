@@ -21,10 +21,18 @@ option(AVX2 "Enable AVX2" ON)
 option(USE_SIMDE "Enable using the simde library" ON)
 
 enable_testing()
-add_subdirectory(lib/libmld)
 
 set(CMAKE_CXX_STANDARD 20)
 enable_language(Fortran)
+
+find_package(Git REQUIRED)
+# Alternatively, run git submodule update --init --recursive after checkout
+if(NOT EXISTS ${PROJECT_SOURCE_DIR}/lib/libmld/lib/simde/COPYING)
+  execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
+          WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+          COMMAND_ERROR_IS_FATAL ANY)
+endif()
+add_subdirectory(lib/libmld)
 
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Release")
