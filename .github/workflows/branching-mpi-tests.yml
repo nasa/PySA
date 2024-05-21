@@ -1,0 +1,67 @@
+# Author: Humberto Munoz Bauza (humberto.munozbauza@nasa.gov)
+# 
+# Copyright © 2023, United States Government, as represented by the Administrator
+# of the National Aeronautics and Space Administration. All rights reserved.
+# 
+# The PySA, a powerful tool for solving optimization problems is licensed under
+# the Apache License, Version 2.0 (the "License"); you may not use this file
+# except in compliance with the License. You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0.
+# 
+# Unless required by applicable law or agreed to in writing, software distributed
+# under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+# CONDITIONS OF ANY KIND, either express or implied. See the License for the
+# specific language governing permissions and limitations under the License.
+
+name: branching-mpi-tests
+
+on:
+  push:
+    branches: [ "pysa-dpll" ]
+  pull_request:
+    branches: [ "pysa-dpll" ]
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
+
+jobs:
+  build:
+    # Test ubuntu only for now
+    runs-on: ubuntu-latest
+    strategy:
+      # Set fail-fast to false to ensure that feedback is delivered for all matrix combinations. Consider changing this to true when your workflow is stable.
+      fail-fast: false
+
+      matrix:
+        build_type: [ Release, Debug ]
+        cpp_compiler: [ g++, clang++]
+        mpi: [ 'mpich', 'openmpi']
+        exclude:
+          - mpi: 'mpich'
+            cpp_compiler: clang++
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Setup MPI
+        uses: mpi4py/setup-mpi@v1
+        with:
+          mpi: ${{ matrix.mpi }}
+      - name: Configure CMake
+        run: >
+          cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -DMPI=ON
+          -S ${{ github.workspace }}
+
+      - name: Build
+        # Build your program with the given configuration
+        run: cmake --build ${{github.workspace}}/build --config ${{ matrix.build_type }}
+
+      - name: Test
+        working-directory: ${{github.workspace}}/build/tests
+        # Execute tests defined by the CMake configuration.
+        # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
+        run: ctest -C ${{env.BUILD_TYPE}}
+
