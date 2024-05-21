@@ -39,7 +39,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          suro apt install -y mpich python3-pybind11 python3-dev
+          sudo apt install -y mpich python3-pybind11 python3-dev
 
       - name: Install Python CUI
         run: |
