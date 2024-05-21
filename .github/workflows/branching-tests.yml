@@ -37,6 +37,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Install dependencies
+        run: |
+          suro apt install -y mpich python3-pybind11 python3-dev
+
       - name: Install Python CUI
         run: |
           pip install -U pip
@@ -48,15 +52,11 @@ jobs:
 
       - name: Configure CMake
         run: >
-          which python
-          python - pybind11 --cmakedir
-          cmake -B ${{github.workspace}}/build\
-                -S ${{ github.workspace }} \
-                -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-                -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
-                -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-                -Dpybind11_DIR=$(python -m pybind11 --cmakedir) \
-                -DPython_EXECUTABLE=$(which python) \
+          cmake -B ${{github.workspace}}/build 
+                -S ${{ github.workspace }}
+                -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+                -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+                -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
                 -DMPI=${{ matrix.mpi }}
 
       - name: Build
