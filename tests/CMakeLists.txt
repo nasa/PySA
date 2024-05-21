@@ -35,14 +35,6 @@ add_custom_target(run_tests
   DEPENDS tests
 )
 
-# If MPI exists, compile the code using MPI
-if (MPI AND MPI_FOUND)
-  message(STATUS "MPI Enabled")
-  target_compile_definitions(test_dpll_sat.x PUBLIC USE_MPI)
-  target_include_directories(test_dpll_sat.x PUBLIC ${MPI_CXX_HEADER_DIR})
-  target_link_libraries(test_dpll_sat.x MPI::MPI_CXX)
-endif ()
-
 # Enable testing
 enable_testing()
 

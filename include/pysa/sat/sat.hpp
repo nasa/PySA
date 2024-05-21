@@ -21,6 +21,7 @@ specific language governing permissions and limitations under the License.
 #include <iostream>
 #include <list>
 #include <memory>
+#include <optional>
 #include <pysa/archive/archive.hpp>
 #include <random>
 #include <regex>
@@ -37,7 +38,8 @@ specific language governing permissions and limitations under the License.
 namespace pysa::dpll::sat {
 
 auto GetRandomInstance(const std::size_t k, const std::size_t n,
-                       const std::size_t m, const std::size_t seed = 0) {
+                       const std::size_t m,
+                       const std::optional<std::size_t> seed = std::nullopt) {
   /*
    * Generate k-SAT random instance.
    */
@@ -47,7 +49,7 @@ auto GetRandomInstance(const std::size_t k, const std::size_t n,
   if (n < k) throw std::runtime_error("'n' must be larger than 'k'");
 
   // Get random seed
-  const std::size_t seed_ = seed ? seed : std::random_device()();
+  const std::size_t seed_ = seed.value_or(std::random_device()());
 
   // Initialize random generator
   std::mt19937_64 rng_(seed_);
@@ -490,7 +492,7 @@ template <typename Formula, typename WallTime = std::nullptr_t,
           typename SleepTime = decltype(1ms)>
 auto optimize(Formula &&formula, std::size_t max_n_unsat = 0,
               bool verbose = false,
-              std::size_t n_threads = std::thread::hardware_concurrency(),
+              std::optional<std::size_t> n_threads = std::nullopt,
               WallTime &&walltime = nullptr, SleepTime &&sleep_time = 1ms) {
   // Get root initializer
   const auto init_ = [&formula, max_n_unsat]() {
@@ -503,7 +505,9 @@ auto optimize(Formula &&formula, std::size_t max_n_unsat = 0,
   };
 
   // Get configurations from dpll
-  return DPLL(init_, get_, verbose, n_threads, walltime, sleep_time);
+  return DPLL(init_, get_, verbose,
+              n_threads.value_or(std::thread::hardware_concurrency()), walltime,
+              sleep_time);
 }
 
 #ifdef USE_MPI
@@ -514,7 +518,7 @@ template <typename MPI_Comm_World, typename Formula,
           typename ThreadSleepTime = decltype(1ms)>
 auto optimize(MPI_Comm_World &&mpi_comm_world, Formula formula,
               std::size_t max_n_unsat, bool verbose = false,
-              std::size_t n_threads = std::thread::hardware_concurrency(),
+              std::optional<std::size_t> n_threads = std::nullopt,
               SleepTime &&sleep_time = 60s,
               ThreadSleepTime &&thread_sleep_time = 1ms) {
   // Broadcast it
@@ -553,7 +557,8 @@ auto optimize(MPI_Comm_World &&mpi_comm_world, Formula formula,
 
   // Get configurations from dpll
   return pysa::dpll::mpi::DPLL(
-      init_, get_, verbose, std::thread::hardware_concurrency(), {}, {}, {},
+      init_, get_, verbose,
+      n_threads.value_or(std::thread::hardware_concurrency()), {}, {}, {},
       std::tuple{instance_}, sleep_time, thread_sleep_time);
 }
 
