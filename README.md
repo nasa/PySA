@@ -1,6 +1,6 @@
-# PySA-SAT Solvers
+# PySA-DPLL Solvers
 
-This library implements SAT solver algorithms for PySA.  Currently two algorithm implementations
+This library implements the DPLL algorithm for PySA.  Currently two algorithm implementations
 are available, one exact solver (DPLL-SAT) and one heuristic solver (Walk-SAT). SAT problems are accepted
 in standard CNF format.
 
@@ -9,13 +9,44 @@ in standard CNF format.
 The standalone command line applications for the solvers are configured using CMake.
 A C++17 compliant compiler is required. To build all targets, including examples and tests,
 
-` cmake -DCMAKE_BUILD_TYPE=Release -S . -B ./build-release/ && cmake --build ./build-release`
+```
+$ cmake -DCMAKE_BUILD_TYPE=Release -S . -B ./build-release/ && cmake --build ./build-release
+```
 
 The executables are built to `./build-release/src/dpll-sat.x ` and `./build-release/src/walk-sat.x`
 
 DPLL-SAT  uses standard C++ concurrency to parallelize generic branch exploration.
 Additionally, it supports distributing branches using `MPI` processes when compiled with `MPI` support by
 passing `-DMPI=ON` to CMake, and optionally `-DMPIEXEC_EXECUTABLE=/path/to/mpiexec`.
+
+A Python interface is also available, and it can be installed using `pip`:
+```bash
+$ pip install -U [pysa_dpll_folder]
+```
+
+### PySA-DPLL
+`pysa-dpll` is the Python interface of PySA-DPLL:
+```
+$ pysa-dpll --help
+ Usage: pysa-dpll [OPTIONS] COMMAND [ARGS]...                                                                                                                                                                      
+                                                                                                                                                                                                                   
+ PySA-DPLL                                                                                                                                                                                                         
+                                                                                                                                                                                                                   
+╭─ Options ────────────────────────────────────────────────────────────────────────────╮
+│ --filename            -f      TEXT     Filename to use. Otherwise use stdin.         |
+│ --walltime            -w      FLOAT    Walltime in seconds. [default: None]          |
+│ --n-threads                   INTEGER  Number of threads to use (by default, all     |
+|                                        available cores are used). [default: None]    |
+│ --verbose             -v               Verbose output.                               |
+│ --install-completion                   Install completion for the current shell.     |
+│ --show-completion                      Show completion for the current shell, to     |
+|                                        copy it or customize the installation.        |
+│ --help                                 Show this message and exit.                   |
+╰──────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Commands ───────────────────────────────────────────────────────────────────────────╮
+│ sat   Find all configurations with a maximum number of unsatisfied clauses           │
+╰──────────────────────────────────────────────────────────────────────────────────────╯
+```
 
 ### DPLL-SAT
 DPLL-SAT enumerates all solutions up to a maximum number of unsatisfied clauses.
