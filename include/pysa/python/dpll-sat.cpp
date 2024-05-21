@@ -172,9 +172,10 @@ verbose: bool, optional
 #ifdef USE_MPI
         if (walltime)
           throw std::logic_error(
-              "'walltime' is not yet implemented for MPI.") else return sat::
-              mpi::optimize(mpi_comm_world, cnf, max_n_unsat, verbose,
-                            n_threads);
+              "At the moment, 'walltime' is not implemented for "
+              "MPI.") else return sat::mpi::optimize(mpi_comm_world, cnf,
+                                                     max_n_unsat, verbose,
+                                                     n_threads);
 #else
         if (walltime)
           return sat::optimize(
