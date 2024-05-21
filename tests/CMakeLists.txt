@@ -20,9 +20,14 @@ cmake_minimum_required(VERSION 3.5)
 # Set the project name
 project(pysa-dpll-test LANGUAGES CXX)
 
+# Add PySA include
+include_directories(${CMAKE_SOURCE_DIR}/include)
+
 # Add executable to compile
 add_executable(test_dpll_sat.x test_dpll_sat.cpp)
+add_executable(test_walk_sat.x test_walk_sat.cpp)
 add_dependencies(test_dpll_sat.x pysa-branching)
+add_dependencies(test_walk_sat.x pysa-branching)
 
 # Add target to compile all tests
 add_custom_target(tests
@@ -52,4 +57,5 @@ if (MPI AND MPI_FOUND)
 else ()
   add_test(NAME test_dpll_sat COMMAND ./test_dpll_sat.x)
 endif ()
+add_test(NAME test_walk_sat COMMAND ./test_walk_sat.x)
 set_tests_properties(test_dpll_sat PROPERTIES TIMEOUT 60)
