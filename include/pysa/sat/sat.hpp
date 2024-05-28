@@ -19,15 +19,13 @@ specific language governing permissions and limitations under the License.
 
 #include <optional>
 
-
 #ifdef USE_MPI
 #include <mpi.h>
 #endif
 
+#include "branch.hpp"
 #include "cnf.hpp"
 #include "instance.hpp"
-#include "branch.hpp"
-
 
 namespace pysa::dpll::sat {
 
@@ -118,8 +116,7 @@ auto optimize(MPI_Comm_World &&mpi_comm_world, Formula formula,
       std::tuple{instance_}, sleep_time, thread_sleep_time);
 }
 
-}  // namespace mpi
+} // namespace mpi
 #endif
 
-}  // namespace pysa::dpll::sat
-
+} // namespace pysa::dpll::sat
