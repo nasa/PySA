@@ -66,3 +66,8 @@ jobs:
       - name: Test
         working-directory: ${{github.workspace}}/build/tests
         run: ctest -C ${{env.BUILD_TYPE}}
+
+      - name: Check docker container
+        run: |
+          docker build . -t pysa-dpll
+          echo -e 'p cnf 2 1\n1 2 0' | docker run -i --rm pysa-dpll sat
