@@ -24,6 +24,29 @@ A Python interface is also available, and it can be installed using `pip`:
 $ pip install -U [pysa_dpll_folder]
 ```
 
+Similarly, PySA-DPLL can be installed as a container:
+```bash
+$ docker build . -t pysa-dpll
+```
+The formula can be then provided as `stdin`:
+```bash
+$ echo -e 'p cnf 2 1\n1 2 0' | docker run -i --rm pysa-dpll sat
+[
+  {
+    "state": "01",
+    "n_unsat": 0
+  },
+  {
+    "state": "10",
+    "n_unsat": 0
+  },
+  {
+    "state": "11",
+    "n_unsat": 0
+  }
+]
+```
+
 ### PySA-DPLL
 `pysa-dpll` is the Python interface of PySA-DPLL:
 ```
