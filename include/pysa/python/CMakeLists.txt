@@ -35,5 +35,5 @@ file(GLOB_RECURSE SOURCES "./*.cpp")
 
 # Initialize PyBind11 library
 pybind11_add_module(pysa_dpll_core ${SOURCES})
-target_include_directories(pysa_dpll_core PRIVATE ../../include)
+target_include_directories(pysa_dpll_core PRIVATE ../../)
 add_dependencies(pysa_dpll_core pysa-branching)
