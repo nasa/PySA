@@ -1,0 +1,5 @@
+[submodule "lib/PySA-dpll"]
+	path = lib/PySA-dpll
+	url = https://github.com/hmunozb/PySA.git
+	branch = cmake-fix
+
