@@ -16,6 +16,9 @@
 
 # Initialize MPI
 try:
+    import mpi4py
+    mpi4py.rc.threaded = True
+    mpi4py.rc.thread_level = "multiple"
     from mpi4py import MPI
 except:
     pass
