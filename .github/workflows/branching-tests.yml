@@ -70,4 +70,4 @@ jobs:
 
       - name: Test
         working-directory: ${{github.workspace}}/build/tests
-        run: ctest -C ${{env.BUILD_TYPE}}
+        run: ctest -C ${{ matrix.build_type }} --rerun-failed --output-on-failure
