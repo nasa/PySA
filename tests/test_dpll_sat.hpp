@@ -229,7 +229,8 @@ auto TestDPLLSAT_MPI(std::size_t k, std::size_t n, std::size_t m,
   MPI_Comm_dup(MPI_COMM_WORLD, &mpi_comm_world);
 
   // Get MPI rank and size
-  const auto [mpi_rank_, mpi_size_] = []() {
+  size_t mpi_rank_, mpi_size_;
+  std::tie(mpi_rank_, mpi_size_) = []() {
     int mpi_rank_, mpi_size_;
     MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank_);
     MPI_Comm_size(MPI_COMM_WORLD, &mpi_size_);
