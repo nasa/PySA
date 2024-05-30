@@ -229,8 +229,7 @@ auto TestDPLLSAT_MPI(std::size_t k, std::size_t n, std::size_t m,
   MPI_Comm_dup(MPI_COMM_WORLD, &mpi_comm_world);
 
   // Get MPI rank and size
-  size_t mpi_rank_, mpi_size_;
-  std::tie(mpi_rank_, mpi_size_) = []() {
+  const auto [mpi_rank_, mpi_size_] = []() {
     int mpi_rank_, mpi_size_;
     MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank_);
     MPI_Comm_size(MPI_COMM_WORLD, &mpi_size_);
@@ -239,8 +238,8 @@ auto TestDPLLSAT_MPI(std::size_t k, std::size_t n, std::size_t m,
   }();
 
   // Get random formula
-  auto formula_ =
-      [k, n, m, mpi_rank_]() -> decltype(sat::GetRandomInstance(0, 0, 0, 0)) {
+  auto formula_ = [k, n, m, mpi_rank_ = mpi_rank_]()
+      -> decltype(sat::GetRandomInstance(0, 0, 0, 0)) {
     if (mpi_rank_ == 0)
       return sat::GetRandomInstance(k, n, m, std::random_device()());
     else

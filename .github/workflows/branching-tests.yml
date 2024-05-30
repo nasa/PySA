@@ -30,7 +30,7 @@ jobs:
 
       matrix:
         build_type: [ Release, Debug ]
-        cpp_compiler: [ g++-12, clang++-15 ]
+        cpp_compiler: [ g++, clang++ ]
         mpi: [ ON, OFF ]
 
     steps:
