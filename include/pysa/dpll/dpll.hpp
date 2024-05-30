@@ -324,7 +324,8 @@ auto DPLL(Init &&init, Get &&get, bool verbose = false,
     std::cerr << "# Starting breadth-first search ... ";
 
   // Run a breadth-first search to fill branches
-  auto [collected_, partial_branches_] = [&init, &get, mpi_rank_, n_threads]()
+  auto [collected_, partial_branches_] = [&init, &get, mpi_rank_ = mpi_rank_,
+                                          n_threads]()
       -> decltype(pysa::dpll::DPLL<false>(init, get, false, n_threads, 1s)) {
     if (mpi_rank_ == 0) {
       return pysa::dpll::DPLL<false>(init, get, false, n_threads, 1s);
@@ -346,7 +347,7 @@ auto DPLL(Init &&init, Get &&get, bool verbose = false,
   MPI_Barrier(mpi_comm_world_2);
 
   std::mutex mutex_;
-  auto collect_ = [&mutex_, &collected_, &get](auto &&branch) {
+  auto collect_ = [&mutex_, &collected_ = collected_, &get](auto &&branch) {
 #ifndef NDEBUG
     if (!branch.leaf()) throw std::runtime_error("Not a leaf");
 #endif
