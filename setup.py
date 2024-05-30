@@ -20,6 +20,27 @@ import pybind11
 import subprocess
 import sys
 
+# Set version
+VERSION = 0.1
+
+# Check if MPI is needed
+USE_MPI = 'USE_MPI' in os.environ
+
+# Locate right path
+here = os.path.abspath(os.path.dirname(__file__))
+
+# Get the long description from the README file
+with open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
+    long_description = f.read()
+
+# Get requirements from requirements.txt
+with open(os.path.join(here, 'requirements.txt'), encoding='utf-8') as f:
+    install_requires = [x.strip() for x in f.readlines()]
+
+    # Add MPI if needed
+    if USE_MPI:
+        install_requires.append('mpi4py')
+
 
 class CMakeExtension(Extension):
 
@@ -55,6 +76,10 @@ class CMakeBuild(build_ext):
             '-DPython_EXECUTABLE=' + sys.executable
         ]
 
+        # Add MPI if needed
+        if USE_MPI:
+            cmake_args.append('-DMPI=ON')
+
         build_args = ['--config', cfg]
 
         if not os.path.exists(self.build_temp):
@@ -69,20 +94,6 @@ class CMakeBuild(build_ext):
                               ['--target', ext.name] + ['-j'] + build_args,
                               cwd=self.build_temp)
 
-
-# Set version
-VERSION = 0.1
-
-# Locate right path
-here = os.path.abspath(os.path.dirname(__file__))
-
-# Get the long description from the README file
-with open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
-    long_description = f.read()
-
-# Get requirements from requirements.txt
-with open(os.path.join(here, 'requirements.txt'), encoding='utf-8') as f:
-    install_requires = [x.strip() for x in f.readlines()]
 
 setup(name='pysa-dpll',
       version=VERSION,

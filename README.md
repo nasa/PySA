@@ -21,7 +21,21 @@ passing `-DMPI=ON` to CMake, and optionally `-DMPIEXEC_EXECUTABLE=/path/to/mpiex
 
 A Python interface is also available, and it can be installed using `pip`:
 ```bash
-$ pip install -U [pysa_dpll_folder]
+$ pip install [pysa_dpll_folder]
+```
+or directly from GitHub:
+```bash
+$ pip install git+https://github.com/nasa/pysa@pysa-dpll 
+```
+
+`MPI` is supported through the Python interface, but it must be enabled during
+the installation:
+```bash
+$ USE_MPI=1 pip install [pysa_dpll_folder]
+```
+or
+```bash
+$ USE_MPI=1 pip install git+https://github.com/nasa/pysa@pysa-dpll 
 ```
 
 Similarly, PySA-DPLL can be installed as a container:
@@ -51,10 +65,10 @@ $ echo -e 'p cnf 2 1\n1 2 0' | docker run -i --rm pysa-dpll sat
 `pysa-dpll` is the Python interface of PySA-DPLL:
 ```
 $ pysa-dpll --help
- Usage: pysa-dpll [OPTIONS] COMMAND [ARGS]...                                                                                                                                                                      
-                                                                                                                                                                                                                   
- PySA-DPLL                                                                                                                                                                                                         
-                                                                                                                                                                                                                   
+ Usage: pysa-dpll [OPTIONS] COMMAND [ARGS]...
+
+ PySA-DPLL
+
 ╭─ Options ────────────────────────────────────────────────────────────────────────────╮
 │ --filename            -f      TEXT     Filename to use. Otherwise use stdin.         |
 │ --walltime            -w      FLOAT    Walltime in seconds. [default: None]          |
@@ -86,11 +100,12 @@ desired MPI processes.
 
 
 ### Walk-SAT
-The Walk-SAT application is a heuristic solver. Its algorithmic parameter
-is the walk probability `p`, which sets the probability of randomly flipping any variable
-in an unsatisfied clause when no variable in the clause will cause other clauses to become
-unsat when flipped. The algorithm is restarted if no solution is found after `max_steps`, up
-until `cutoff_time` seconds have elapsed.
+The Walk-SAT application is a heuristic solver. Its algorithmic parameter is
+the walk probability `p`, which sets the probability of randomly flipping any
+variable in an unsatisfied clause when no variable in the clause will cause
+other clauses to become unsat when flipped. The algorithm is restarted if no
+solution is found after `max_steps`, up until `cutoff_time` seconds have
+elapsed.
 
 ```text
 Usage: walk-sat.x cnf_file max_steps [p = 0.5] [unsat = 0] [seed = 0] [cutoff_time = 0]

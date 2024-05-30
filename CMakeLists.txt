@@ -48,6 +48,9 @@ find_package(Threads REQUIRED)
 # Link threads
 link_libraries(Threads::Threads)
 
+# Check for Git
+find_package(Git REQUIRED)
+
 # Add external files
 include(ExternalProject)
 

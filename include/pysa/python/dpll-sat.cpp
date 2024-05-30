@@ -38,9 +38,13 @@ inline int mpi_size;
 // Initialize MPI
 #ifdef USE_MPI
 void init_MPI(py::module m) {
-  int provided;
-  MPI_Init_thread(nullptr, nullptr, MPI_THREAD_MULTIPLE, &provided);
-  assert(MPI_THREAD_MULTIPLE == provided);
+  // Check thread level
+  {
+    int thread_level_;
+    MPI_Query_thread( &thread_level_ );
+    if (thread_level_ != MPI_THREAD_MULTIPLE)
+      throw std::runtime_error("MPI should be set to 'MPI_THREAD_MULTIPLE'");
+  }
 
   // Duplicate worlds
   MPI_Comm_dup(MPI_COMM_WORLD, &mpi_comm_world);

@@ -30,7 +30,7 @@ jobs:
 
       matrix:
         build_type: [ Release, Debug ]
-        cpp_compiler: [ g++, clang++]
+        cpp_compiler: [ g++, clang++ ]
         mpi: [ ON, OFF ]
 
     steps:
@@ -39,15 +39,21 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt install -y mpich python3-pybind11 python3-dev
+          sudo apt install -y libopenmpi-dev python3-pybind11 python3-dev python3-mpi4py
+      
 
-      - name: Install Python CUI
+      - name: Install and Test Python CUI (MPI)
+        if: matrix.mpi == 'ON'
+        run: |
+          pip install -U pip
+          USE_MPI=1 pip install -U .
+          echo -e 'p cnf 2 2\n1 2 0\n-1 -2 0' | mpirun -n 2 pysa-dpll sat
+
+      - name: Install and Test Python CUI
+        if: matrix.mpi == 'OFF'
         run: |
           pip install -U pip
           pip install -U .
-
-      - name: Test Python CUI
-        run: >
           echo -e 'p cnf 2 2\n1 2 0\n-1 -2 0' | pysa-dpll sat
 
       - name: Configure CMake
@@ -65,4 +71,4 @@ jobs:
 
       - name: Test
         working-directory: ${{github.workspace}}/build/tests
-        run: ctest -C ${{env.BUILD_TYPE}}
+        run: ctest -C ${{ matrix.build_type }} --rerun-failed --output-on-failure

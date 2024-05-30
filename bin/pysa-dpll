@@ -13,6 +13,16 @@
 # under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
 # CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
+
+# Initialize MPI
+try:
+    import mpi4py
+    mpi4py.rc.threaded = True
+    mpi4py.rc.thread_level = "multiple"
+    from mpi4py import MPI
+except:
+    pass
+
 from pysa_dpll._app._main import app
 
 if __name__ == '__main__':

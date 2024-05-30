@@ -238,8 +238,8 @@ auto TestDPLLSAT_MPI(std::size_t k, std::size_t n, std::size_t m,
   }();
 
   // Get random formula
-  auto formula_ =
-      [k, n, m, mpi_rank_]() -> decltype(sat::GetRandomInstance(0, 0, 0, 0)) {
+  auto formula_ = [k, n, m, mpi_rank_ = mpi_rank_]()
+      -> decltype(sat::GetRandomInstance(0, 0, 0, 0)) {
     if (mpi_rank_ == 0)
       return sat::GetRandomInstance(k, n, m, std::random_device()());
     else

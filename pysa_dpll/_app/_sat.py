@@ -22,6 +22,13 @@ from rich import print
 import json
 from ._globals import __params, print_params
 
+# Get rank
+try:
+    from mpi4py import MPI
+    __rank = MPI.COMM_WORLD.Get_rank()
+except:
+    __rank = 0
+
 __all__ = ['sat']
 
 
@@ -47,7 +54,7 @@ def sat(max_n_unsat: Annotated[
     __params.update(locals())
 
     # Print parameters
-    if (__params['verbose']):
+    if (__rank == 0 and __params['verbose']):
         print_params()
 
     # Load cnf
@@ -65,8 +72,9 @@ def sat(max_n_unsat: Annotated[
         warn("At the moment, partial branches cannot be exported", UserWarning)
 
     # Dump results
-    print(
-        json.dumps(list(
-            map(lambda x: dict(state=str(x.state), n_unsat=x.n_unsat),
-                collected_)),
-                   indent=2))
+    if (__rank == 0):
+        print(
+            json.dumps(list(
+                map(lambda x: dict(state=str(x.state), n_unsat=x.n_unsat),
+                    collected_)),
+                       indent=2))
