@@ -45,7 +45,9 @@ enable_testing()
 
 # Add braching test
 if (MPI AND MPI_FOUND)
-  add_test(NAME test_dpll_sat COMMAND mpirun -n 4 ./test_dpll_sat.x)
+  add_test(NAME test_dpll_sat COMMAND ${MPIEXEC_EXECUTABLE}
+          ${MPIEXEC_NUMPROC_FLAG} ${MPIEXEC_MAX_NUMPROCS}
+          ${MPIEXEC_PREFLAGS} ./test_dpll_sat.x)
 else ()
   add_test(NAME test_dpll_sat COMMAND ./test_dpll_sat.x)
 endif ()
