@@ -46,14 +46,14 @@ jobs:
         if: matrix.mpi == 'ON'
         run: |
           pip install -U pip
-          USE_MPI=1 pip install -U .
+          USE_MPI=1 pip install -U . --verbose
           echo -e 'p cnf 2 2\n1 2 0\n-1 -2 0' | mpirun -n 2 pysa-dpll sat
 
       - name: Install and Test Python CUI
         if: matrix.mpi == 'OFF'
         run: |
           pip install -U pip
-          pip install -U .
+          pip install -U . --verbose
           echo -e 'p cnf 2 2\n1 2 0\n-1 -2 0' | pysa-dpll sat
 
       - name: Configure CMake
