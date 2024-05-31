@@ -39,7 +39,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          sudo apt install -y libopenmpi-dev python3-pybind11 python3-dev python3-mpi4py
+          sudo apt install -y libopenmpi-dev python3-pybind11 python3-dev
       
 
       - name: Install and Test Python CUI (MPI)

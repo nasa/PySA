@@ -38,24 +38,48 @@ inline int mpi_size;
 // Initialize MPI
 #ifdef USE_MPI
 void init_MPI(py::module m) {
-  // Check thread level
-  {
-    int thread_level_;
-    MPI_Query_thread( &thread_level_ );
-    if (thread_level_ != MPI_THREAD_MULTIPLE)
-      throw std::runtime_error("MPI should be set to 'MPI_THREAD_MULTIPLE'");
-  }
+  m.def(
+      "init_MPI",
+      []() {
+        int provided;
+        MPI_Init_thread(nullptr, nullptr, MPI_THREAD_MULTIPLE, &provided);
+        if (MPI_THREAD_MULTIPLE != provided)
+          throw std::runtime_error("Cannot initialize MPI");
+      },
+      "Initialize the MPI environment.");
 
-  // Duplicate worlds
-  MPI_Comm_dup(MPI_COMM_WORLD, &mpi_comm_world);
+  m.def(
+      "finalize_MPI",
+      []() {
+        MPI_Barrier(mpi_comm_world);
+        MPI_Finalize();
+      },
+      "Finalize the MPI environment.");
 
-  // Get MPI rank and size
-  MPI_Comm_rank(mpi_comm_world, &mpi_rank);
-  MPI_Comm_size(mpi_comm_world, &mpi_size);
+  m.def(
+      "setup_MPI",
+      []() {
+        // Check thread level
+        {
+          int thread_level_;
+          MPI_Query_thread(&thread_level_);
+          if (thread_level_ != MPI_THREAD_MULTIPLE)
+            throw std::runtime_error(
+                "MPI should be set to 'MPI_THREAD_MULTIPLE'");
+        }
 
-  // Print number of nodes
-  if (mpi_rank == 0)
-    std::cerr << "# Number of MPI nodes: " << mpi_size << std::endl;
+        // Duplicate worlds
+        MPI_Comm_dup(MPI_COMM_WORLD, &mpi_comm_world);
+
+        // Get MPI rank and size
+        MPI_Comm_rank(mpi_comm_world, &mpi_rank);
+        MPI_Comm_size(mpi_comm_world, &mpi_size);
+      },
+      "Setup the MPI environment.");
+
+  m.def("get_rank", []() { return mpi_rank; }, "Get MPI rank.");
+
+  m.def("get_size", []() { return mpi_size; }, "Get MPI size.");
 }
 #endif
 

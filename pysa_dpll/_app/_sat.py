@@ -18,16 +18,15 @@ from pysa_dpll.sat import optimize
 from pysa_dpll.sat.utils import loads
 from sys import stdin, stderr
 from warnings import warn
-from rich import print
 import json
 from ._globals import __params, print_params
-
-# Get rank
 try:
-    from mpi4py import MPI
-    __rank = MPI.COMM_WORLD.Get_rank()
-except:
-    __rank = 0
+    from rich import print
+except ImportError:
+    pass
+
+# Get MPI
+from pysa_dpll.mpi.env import MPI
 
 __all__ = ['sat']
 
@@ -54,7 +53,7 @@ def sat(max_n_unsat: Annotated[
     __params.update(locals())
 
     # Print parameters
-    if (__rank == 0 and __params['verbose']):
+    if (MPI.rank == 0 and __params['verbose']):
         print_params()
 
     # Load cnf
@@ -72,7 +71,7 @@ def sat(max_n_unsat: Annotated[
         warn("At the moment, partial branches cannot be exported", UserWarning)
 
     # Dump results
-    if (__rank == 0):
+    if (MPI.rank == 0):
         print(
             json.dumps(list(
                 map(lambda x: dict(state=str(x.state), n_unsat=x.n_unsat),

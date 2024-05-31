@@ -12,18 +12,14 @@
 # under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
 # CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
-from pysa_dpll.mpi.env import MPI
-from sys import stderr
-
-# Global params
-__params = {}
-if MPI.enabled:
-    __params['mpi_size'] = MPI.size
+from dataclasses import dataclass
 
 
-# Print params
-def print_params():
-    for k_, v_ in __params.items():
-        print(
-            f"# {'_'.join(map(lambda x: x.capitalize(), k_.split('_')))} = {v_}",
-            file=stderr)
+# Parameters for mpi
+@dataclass
+class rc:
+    """
+    Parameter for MPI.
+    """
+    initialize: bool = True
+    finalize: bool = True
