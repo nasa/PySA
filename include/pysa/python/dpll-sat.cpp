@@ -51,7 +51,6 @@ void init_MPI(py::module m) {
   m.def(
       "finalize_MPI",
       []() {
-        MPI_Barrier(mpi_comm_world);
         MPI_Finalize();
       },
       "Finalize the MPI environment.");
