@@ -141,9 +141,9 @@ auto TestBitSet(const std::size_t n) {
   }
 }
 
-auto TestBranch() {
+auto TestBranch(std::optional<std::size_t> seed = std::nullopt) {
   // Get random SAT problem
-  const auto formula_ = sat::GetRandomInstance(4, 20, 30);
+  const auto formula_ = sat::GetRandomInstance(4, 20, 30, seed);
 
   // Get root
   sat::Branch root_{formula_, 10};

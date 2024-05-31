@@ -46,9 +46,11 @@ int main() {
   if (mpi_rank_ == 0)
 #endif
   {
-    TestBranch();
-    for (const auto &n_ : {8, 16, 32, 64, 96, 128, 142}) TestBitSet(n_);
     std::size_t seed_;
+    seed_ = std::random_device()();
+    std::cerr << "# Seed: " << seed_ << std::endl;
+    TestBranch(seed_);
+    for (const auto &n_ : {8, 16, 32, 64, 96, 128, 142}) TestBitSet(n_);
     seed_ = std::random_device()();
     std::cerr << "# Seed: " << seed_ << std::endl;
     TestDPLLSAT(3, 21, 60, std::size_t{1} << 20, true, seed_);
