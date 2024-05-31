@@ -291,6 +291,66 @@ auto _Scatter(MPI_Comm_World &&mpi_comm_world, Array &&array,
   return array_;
 }
 
+template <typename MPI_Comm_World, typename Object,
+          typename DumpParams = std::tuple<>,
+          typename LoadParams = std::tuple<>>
+auto _Bcast(MPI_Comm_World &&mpi_comm_world, const Object &object,
+            const std::size_t root, DumpParams &&dump_params = std::tuple<>{},
+            LoadParams &&load_params = std::tuple<>{}) {
+  // Get MPI rank and size
+  const auto [mpi_rank_, mpi_size_] = [&mpi_comm_world]() {
+    int mpi_rank_, mpi_size_;
+    MPI_Comm_rank(mpi_comm_world, &mpi_rank_);
+    MPI_Comm_size(mpi_comm_world, &mpi_size_);
+    return std::tuple{static_cast<std::size_t>(mpi_rank_),
+                      static_cast<std::size_t>(mpi_size_)};
+  }();
+
+  // Initialize size
+  int size_;
+
+  // Initialize buffer
+  decltype(pysa::branching::dump(object)) buffer_;
+
+  // Get size of blocks
+  static constexpr std::size_t block_size =
+      sizeof(typename decltype(buffer_)::value_type);
+
+  // Get buffer
+  if (mpi_rank_ == root) {
+    buffer_ = std::apply(
+        [](auto &&...x) {
+          return pysa::branching::dump(std::forward<decltype(x)>(x)...);
+        },
+        std::tuple_cat(std::forward_as_tuple(object),
+                       forward_tuple(dump_params)));
+    size_ = block_size * std::size(buffer_);
+  }
+
+  // Broadcast size
+  MPI_Bcast(&size_, 1, MPI_INT, root, mpi_comm_world);
+
+  // Resize
+  if (mpi_rank_ != root) buffer_.resize(size_ / block_size);
+
+  // Broadcast
+  MPI_Bcast(buffer_.data(), size_, MPI_BYTE, root, mpi_comm_world);
+
+  // Load object
+  auto [head_, object_] = std::apply(
+      [](auto &&...x) {
+        return pysa::branching::load<Object>(std::forward<decltype(x)>(x)...);
+      },
+      std::tuple_cat(std::forward_as_tuple(std::begin(buffer_)),
+                     forward_tuple(load_params)));
+
+  // Check head
+  assert(head_ == std::end(buffer_));
+
+  // Return array
+  return object_;
+}
+
 template <typename Init, typename Get, typename ThreadSleepTime = decltype(1ms),
           typename SleepTime = decltype(60s),
           typename GetDumpParams = std::tuple<>,
