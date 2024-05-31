@@ -19,6 +19,7 @@ specific language governing permissions and limitations under the License.
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+#include <pysa/dpll/dpll.hpp>
 #include <pysa/sat/sat.hpp>
 #include <sstream>
 
@@ -27,16 +28,19 @@ namespace py = pybind11;
 
 #ifdef USE_MPI
 #include <mpi.h>
-#endif
 
-#ifdef USE_MPI
 inline MPI_Comm mpi_comm_world;
 inline int mpi_rank;
 inline int mpi_size;
-#endif
+
+auto bcast_cnf(const py::object cnf, const std::size_t root) {
+  using cnf_type_ = std::vector<std::vector<int32_t>>;
+  return py::cast(pysa::dpll::mpi::_Bcast(
+      mpi_comm_world,
+      cnf && !cnf.is(py::none()) ? cnf.cast<cnf_type_>() : cnf_type_{}, root));
+}
 
 // Initialize MPI
-#ifdef USE_MPI
 void init_MPI(py::module m) {
   m.def(
       "init_MPI",
@@ -44,15 +48,12 @@ void init_MPI(py::module m) {
         int provided;
         MPI_Init_thread(nullptr, nullptr, MPI_THREAD_MULTIPLE, &provided);
         if (MPI_THREAD_MULTIPLE != provided)
-          throw std::runtime_error("Cannot initialize MPI");
+          throw std::runtime_error("Cannot initialize MPI.");
       },
       "Initialize the MPI environment.");
 
   m.def(
-      "finalize_MPI",
-      []() {
-        MPI_Finalize();
-      },
+      "finalize_MPI", []() { MPI_Finalize(); },
       "Finalize the MPI environment.");
 
   m.def(
@@ -76,9 +77,13 @@ void init_MPI(py::module m) {
       },
       "Setup the MPI environment.");
 
-  m.def("get_rank", []() { return mpi_rank; }, "Get MPI rank.");
+  m.def("bcast_cnf", &bcast_cnf, "Broadcast CNF using MPI.");
 
-  m.def("get_size", []() { return mpi_size; }, "Get MPI size.");
+  m.def(
+      "get_rank", []() { return mpi_rank; }, "Get MPI rank.");
+
+  m.def(
+      "get_size", []() { return mpi_size; }, "Get MPI size.");
 }
 #endif
 

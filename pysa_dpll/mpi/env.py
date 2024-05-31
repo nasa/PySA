@@ -12,12 +12,14 @@
 # under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
 # CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
+from __future__ import annotations
 from . import rc
 
 __all__ = ['MPI']
 
 try:
-    from pysa_dpll_core import init_MPI, finalize_MPI, setup_MPI, get_rank, get_size
+    from pysa_dpll_core import (init_MPI, finalize_MPI, setup_MPI, get_rank,
+                                get_size, bcast_cnf)
 
     class MPI_env:
 
@@ -41,6 +43,9 @@ try:
         @property
         def enabled(self):
             return True
+
+        def bcast_cnf(self, cnf: list[list[int]], root: int):
+            return bcast_cnf(cnf, root)
 
 except ImportError:
 
