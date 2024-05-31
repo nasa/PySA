@@ -48,13 +48,25 @@ int main() {
   {
     TestBranch();
     for (const auto &n_ : {8, 16, 32, 64, 96, 128, 142}) TestBitSet(n_);
-    TestDPLLSAT(3, 21, 60, std::size_t{1} << 20, true);
-    TestDPLLSAT(2, 21, 60, 10, true);
-    TestDPLLSAT(3, 21, 60, 0, true);
+    std::size_t seed_;
+    seed_ = std::random_device()();
+    std::cerr << "# Seed: " << seed_ << std::endl;
+    TestDPLLSAT(3, 21, 60, std::size_t{1} << 20, true, seed_);
+    seed_ = std::random_device()();
+    std::cerr << "# Seed: " << seed_ << std::endl;
+    TestDPLLSAT(2, 21, 60, 10, true, seed_);
+    seed_ = std::random_device()();
+    std::cerr << "# Seed: " << seed_ << std::endl;
+    TestDPLLSAT(3, 21, 60, 0, true, seed_);
   }
 
 #ifdef USE_MPI
-  TestDPLLSAT_MPI(3, 42, 3 * 42, 0, true);
+  {
+    std::size_t seed_;
+    seed_ = std::random_device()();
+    std::cerr << "# Seed: " << seed_ << std::endl;
+    TestDPLLSAT_MPI(3, 42, 3 * 42, 0, true);
+  }
 #endif
 
   // Finalize

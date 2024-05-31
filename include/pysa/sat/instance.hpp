@@ -39,8 +39,7 @@ auto GetRandomInstance(const std::size_t k, const std::size_t n,
   using clause_type = std::vector<int>;
 
   // Check
-  if (n < k)
-    throw std::runtime_error("'n' must be larger than 'k'");
+  if (n < k) throw std::runtime_error("'n' must be larger than 'k'");
 
   // Get random seed
   const std::size_t seed_ = seed.value_or(std::random_device()());
@@ -48,14 +47,9 @@ auto GetRandomInstance(const std::size_t k, const std::size_t n,
   // Initialize random generator
   std::mt19937_64 rng_(seed_);
 
-#ifndef NDEBUG
-  std::cerr << "# Used seed: " << seed_ << std::endl;
-#endif
-
   // Initialize set of indexes
   std::vector<int> indexes_(n);
-  for (std::size_t i_ = 0; i_ < n; ++i_)
-    indexes_[i_] = i_ + 1;
+  for (std::size_t i_ = 0; i_ < n; ++i_) indexes_[i_] = i_ + 1;
 
   // Generate single clause
   auto get_clause_ = [&rng_, &indexes_, k]() {
@@ -80,15 +74,15 @@ auto GetRandomInstance(const std::size_t k, const std::size_t n,
   return clauses_;
 }
 
-template <typename Formula> auto GetNVars(Formula &&formula) {
+template <typename Formula>
+auto GetNVars(Formula &&formula) {
   std::size_t max_ = 0;
   for (const auto &clause_ : formula)
     for (const auto &x_ : clause_) {
       // All variables should be different from zero
       if (x_ == 0)
         throw std::runtime_error("All variables should be different from zero");
-      if (const std::size_t a_ = std::abs(x_); a_ > max_)
-        max_ = a_;
+      if (const std::size_t a_ = std::abs(x_); a_ > max_) max_ = a_;
     }
   return max_;
 }
@@ -144,7 +138,7 @@ struct Instance {
            last_var == other.last_var;
   }
 
-private:
+ private:
   template <typename Formula>
   static constexpr auto _Build(const Formula &formula) {
     // Check all variables are different from zero
@@ -200,4 +194,4 @@ private:
     return Instance{clauses_, signs_, last_var_};
   }
 };
-} // namespace pysa::dpll::sat
+}  // namespace pysa::dpll::sat

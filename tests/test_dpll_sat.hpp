@@ -190,9 +190,10 @@ auto TestBranch() {
 }
 
 auto TestDPLLSAT(std::size_t k, std::size_t n, std::size_t m,
-                 std::size_t max_n_unsat, bool verbose = false) {
+                 std::size_t max_n_unsat, bool verbose = false,
+                 const std::optional<std::size_t> seed = std::nullopt) {
   // Get random SAT problem
-  const auto formula_ = sat::GetRandomInstance(k, n, m);
+  const auto formula_ = sat::GetRandomInstance(k, n, m, seed);
 
   // Get configurations from exhaustive enumeration
   if (verbose) std::cerr << "# Start exhaustive enumeration ... ";
@@ -223,7 +224,8 @@ auto TestDPLLSAT(std::size_t k, std::size_t n, std::size_t m,
 
 #ifdef USE_MPI
 auto TestDPLLSAT_MPI(std::size_t k, std::size_t n, std::size_t m,
-                     std::size_t max_n_unsat = 0, bool verbose = false) {
+                     std::size_t max_n_unsat = 0, bool verbose = false,
+                     std::optional<std::size_t> seed = std::nullopt) {
   // Duplicate worlds
   MPI_Comm mpi_comm_world;
   MPI_Comm_dup(MPI_COMM_WORLD, &mpi_comm_world);
@@ -238,10 +240,10 @@ auto TestDPLLSAT_MPI(std::size_t k, std::size_t n, std::size_t m,
   }();
 
   // Get random formula
-  auto formula_ = [k, n, m, mpi_rank_ = mpi_rank_]()
-      -> decltype(sat::GetRandomInstance(0, 0, 0, 0)) {
+  auto formula_ = [k, n, m, mpi_rank_ = mpi_rank_,
+                   seed]() -> decltype(sat::GetRandomInstance(0, 0, 0, 0)) {
     if (mpi_rank_ == 0)
-      return sat::GetRandomInstance(k, n, m, std::random_device()());
+      return sat::GetRandomInstance(k, n, m, seed);
     else
       return {};
   }();
