@@ -77,7 +77,8 @@ void init_MPI(py::module m) {
       },
       "Setup the MPI environment.");
 
-  m.def("bcast_cnf", &bcast_cnf, "Broadcast CNF using MPI.");
+  m.def("bcast_cnf", &bcast_cnf, py::arg("cnf"), py::pos_only(),
+        py::arg("root"), "Broadcast CNF using MPI.");
 
   m.def(
       "get_rank", []() { return mpi_rank; }, "Get MPI rank.");

@@ -60,7 +60,7 @@ def sat(max_n_unsat: Annotated[
     cnf_ = load_cnf(__params['filename']) if MPI.rank == 0 else None
 
     # Broadcast cnf
-    cnf_ = MPI.bcast_cnf(cnf_, 0)
+    cnf_ = MPI.bcast_cnf(cnf_, root=0)
 
     # Optimize
     collected_, branches_ = optimize(cnf_,
