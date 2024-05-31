@@ -63,6 +63,9 @@ except ImportError:
         def enabled(self):
             return False
 
+        def bcast_cnf(self, cnf: list[list[int]], root: int):
+            return cnf
+
 
 # Start environment
 MPI = MPI_env()
