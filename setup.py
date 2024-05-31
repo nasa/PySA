@@ -37,10 +37,6 @@ with open(os.path.join(here, 'README.md'), encoding='utf-8') as f:
 with open(os.path.join(here, 'requirements.txt'), encoding='utf-8') as f:
     install_requires = [x.strip() for x in f.readlines()]
 
-    # Add MPI if needed
-    if USE_MPI:
-        install_requires.append('mpi4py')
-
 
 class CMakeExtension(Extension):
 
@@ -120,6 +116,7 @@ setup(name='pysa-dpll',
       keywords=['dpll'],
       python_requires='>=3.7',
       install_requires=install_requires,
+      extras_require=dict(all=['rich']),
       packages=find_packages(),
       ext_modules=[CMakeExtension('pysa_dpll_core')],
       cmdclass=dict(build_ext=CMakeBuild),

@@ -19,6 +19,7 @@ specific language governing permissions and limitations under the License.
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+#include <pysa/dpll/dpll.hpp>
 #include <pysa/sat/sat.hpp>
 #include <sstream>
 
@@ -27,35 +28,63 @@ namespace py = pybind11;
 
 #ifdef USE_MPI
 #include <mpi.h>
-#endif
 
-#ifdef USE_MPI
 inline MPI_Comm mpi_comm_world;
 inline int mpi_rank;
 inline int mpi_size;
-#endif
+
+auto bcast_cnf(const py::object cnf, const std::size_t root) {
+  using cnf_type_ = std::vector<std::vector<int32_t>>;
+  return py::cast(pysa::dpll::mpi::_Bcast(
+      mpi_comm_world,
+      cnf && !cnf.is(py::none()) ? cnf.cast<cnf_type_>() : cnf_type_{}, root));
+}
 
 // Initialize MPI
-#ifdef USE_MPI
 void init_MPI(py::module m) {
-  // Check thread level
-  {
-    int thread_level_;
-    MPI_Query_thread( &thread_level_ );
-    if (thread_level_ != MPI_THREAD_MULTIPLE)
-      throw std::runtime_error("MPI should be set to 'MPI_THREAD_MULTIPLE'");
-  }
+  m.def(
+      "init_MPI",
+      []() {
+        int provided;
+        MPI_Init_thread(nullptr, nullptr, MPI_THREAD_MULTIPLE, &provided);
+        if (MPI_THREAD_MULTIPLE != provided)
+          throw std::runtime_error("Cannot initialize MPI.");
+      },
+      "Initialize the MPI environment.");
 
-  // Duplicate worlds
-  MPI_Comm_dup(MPI_COMM_WORLD, &mpi_comm_world);
+  m.def(
+      "finalize_MPI", []() { MPI_Finalize(); },
+      "Finalize the MPI environment.");
 
-  // Get MPI rank and size
-  MPI_Comm_rank(mpi_comm_world, &mpi_rank);
-  MPI_Comm_size(mpi_comm_world, &mpi_size);
+  m.def(
+      "setup_MPI",
+      []() {
+        // Check thread level
+        {
+          int thread_level_;
+          MPI_Query_thread(&thread_level_);
+          if (thread_level_ != MPI_THREAD_MULTIPLE)
+            throw std::runtime_error(
+                "MPI should be set to 'MPI_THREAD_MULTIPLE'");
+        }
 
-  // Print number of nodes
-  if (mpi_rank == 0)
-    std::cerr << "# Number of MPI nodes: " << mpi_size << std::endl;
+        // Duplicate worlds
+        MPI_Comm_dup(MPI_COMM_WORLD, &mpi_comm_world);
+
+        // Get MPI rank and size
+        MPI_Comm_rank(mpi_comm_world, &mpi_rank);
+        MPI_Comm_size(mpi_comm_world, &mpi_size);
+      },
+      "Setup the MPI environment.");
+
+  m.def("bcast_cnf", &bcast_cnf, py::arg("cnf"), py::pos_only(),
+        py::arg("root"), "Broadcast CNF using MPI.");
+
+  m.def(
+      "get_rank", []() { return mpi_rank; }, "Get MPI rank.");
+
+  m.def(
+      "get_size", []() { return mpi_size; }, "Get MPI size.");
 }
 #endif
 
