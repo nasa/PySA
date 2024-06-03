@@ -34,7 +34,14 @@ jobs:
         cpp_compiler: [ g++, clang++ ]
         mpi: [ ON, OFF ]
 
-      # Ignore g++ for macos
+      include:
+        - os: ubuntu-latest
+          cpp_compiler: g++
+        - os: ubuntu-latest
+          cpp_compiler: clang++
+        - os: macos-latest
+          cpp_compiler: clang++
+
       exclude:
         - os: macos-latest
           cpp_compiler: g++
