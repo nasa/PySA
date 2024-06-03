@@ -76,6 +76,11 @@ class CMakeBuild(build_ext):
         if USE_MPI:
             cmake_args.append('-DMPI=ON')
 
+            # If provided, override MPIEXEC_EXECUTABLE
+            if 'MPIEXEC_EXECUTABLE' in os.environ:
+                cmake_args.append(
+                    f'-DMPIEXEC_EXECUTABLE={os.environ["MPIEXEC_EXECUTABLE"]}')
+
         build_args = ['--config', cfg]
 
         if not os.path.exists(self.build_temp):
