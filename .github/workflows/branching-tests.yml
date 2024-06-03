@@ -23,24 +23,25 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
 
     strategy:
       fail-fast: true
 
       matrix:
+        os: [ ubuntu-latest, macos-latest ]
         build_type: [ Release, Debug ]
         cpp_compiler: [ g++, clang++ ]
         mpi: [ ON, OFF ]
 
+      # Ignore g++ for macos
+      exclude:
+        - os: macos-latest
+          cpp_compiler: g++
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-
-      - name: Install dependencies
-        run: |
-          sudo apt install -y mpich python3-pybind11 python3-dev
-      
 
       - name: Install and Test Python CUI (MPI)
         if: matrix.mpi == 'ON'
