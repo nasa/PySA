@@ -34,17 +34,9 @@ jobs:
         cpp_compiler: [ g++, clang++ ]
         mpi: [ ON, OFF ]
 
-      include:
-        - os: ubuntu-latest
-          cpp_compiler: g++
-        - os: ubuntu-latest
-          cpp_compiler: clang++
-        - os: macos-latest
-          cpp_compiler: clang++
-
-      exclude:
-        - os: macos-latest
-          cpp_compiler: g++
+        exclude:
+          - os: macos-latest
+            cpp_compiler: g++
 
     steps:
       - name: Checkout repository
