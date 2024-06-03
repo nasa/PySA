@@ -30,6 +30,11 @@ authors:
     email: david.e.bernalneira@nasa.gov
     affiliation: NASA Ames Research Center
     orcid: 'https://orcid.org/0000-0002-8308-5016'
+  - given-names: Humberto
+    family-names: Munoz Bauza
+    email: humberto.munozbauza@nasa.gov
+    affiliation: NASA Ames Research Center
+    orcid: 'https://orcid.org/0000-0002-9479-0124'
 repository-code: 'https://github.com/nasa/pysa'
 version: 0.1.0
 date-released: '2023-03-12'
