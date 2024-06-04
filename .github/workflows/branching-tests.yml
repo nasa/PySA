@@ -45,28 +45,40 @@ jobs:
       - name: Install dependencies
         if: matrix.os == 'ubuntu-latest' && matrix.mpi == 'ON'
         run: |
-          sudo apt install -y mpich
+          sudo apt install -y mpich python3-pybind11 python3-dev
 
       - name: Install dependencies
         if: matrix.os == 'macos-latest' && matrix.mpi == 'ON'
         run: |
           brew install mpich
+          pip install pybind11
       
       - name: Install and Test Python CUI (MPI)
         if: matrix.mpi == 'ON'
         run: |
-          pip install -U pip pybind11
+          pip install -U pip
           USE_MPI=1 pip install -U . --verbose
           echo -e 'p cnf 2 2\n1 2 0\n-1 -2 0' | mpirun -n 2 pysa-dpll sat
 
       - name: Install and Test Python CUI
         if: matrix.mpi == 'OFF'
         run: |
-          pip install -U pip pybind11
+          pip install -U pip
           pip install -U . --verbose
           echo -e 'p cnf 2 2\n1 2 0\n-1 -2 0' | pysa-dpll sat
 
       - name: Configure CMake
+        if: matrix.os == 'ubuntu-latest'
+        run: >
+          cmake -B ${{ github.workspace }}/build \
+                -S ${{ github.workspace }} \
+                -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+                -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
+                -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+                -DMPI=${{ matrix.mpi }}
+
+      - name: Configure CMake
+        if: matrix.os == 'macos-latest'
         run: >
           cmake -B ${{ github.workspace }}/build \
                 -S ${{ github.workspace }} \
