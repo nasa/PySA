@@ -38,6 +38,8 @@ if (MPI)
   add_compile_definitions(USE_MPI)
   include_directories(${MPI_CXX_HEADER_DIR})
   link_libraries(MPI::MPI_CXX)
+else()
+  message(STATUS "MPI Disabled")
 endif ()
 
 # Find pthreads
