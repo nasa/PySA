@@ -37,9 +37,6 @@ jobs:
         exclude:
           - os: macos-latest
             cpp_compiler: g++
-          - os: ubuntu-latest
-            cpp_compiler: clang++
-            mpi: ON
 
     steps:
       - name: Checkout repository
@@ -59,25 +56,25 @@ jobs:
         if: matrix.mpi == 'ON'
         run: |
           pip install -U pip pybind11
-          USE_MPI=1 pip install -U . --verbose
+          USE_MPI=1 CXX=${{ matrix.cpp_compiler }} pip install -U . --verbose
           echo -e 'p cnf 2 2\n1 2 0\n-1 -2 0' | mpirun -n 2 pysa-dpll sat
 
       - name: Install and Test Python CUI
         if: matrix.mpi == 'OFF'
         run: |
           pip install -U pip pybind11
-          pip install -U . --verbose
+          CXX=${{ matrix.cpp_compiler }} pip install -U . --verbose
           echo -e 'p cnf 2 2\n1 2 0\n-1 -2 0' | pysa-dpll sat
 
       - name: Configure CMake
         run: >
-          cmake -B ${{ github.workspace }}/build \
-                -S ${{ github.workspace }} \
-                -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-                -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
-                -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
-                -Dpybind11_DIR=$( python -m pybind11 --cmakedir ) \
-                -DMPI=${{ matrix.mpi }}
+          CXX=${{ matrix.cpp_compiler }} \
+              cmake -B ${{ github.workspace }}/build \
+                    -S ${{ github.workspace }} \
+                    -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+                    -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+                    -Dpybind11_DIR=$( python -m pybind11 --cmakedir ) \
+                    -DMPI=${{ matrix.mpi }}
 
       - name: Build
         run: cmake --build ${{ github.workspace }}/build 
