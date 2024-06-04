@@ -23,52 +23,66 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
 
     strategy:
       fail-fast: true
 
       matrix:
+        os: [ ubuntu-latest, macos-latest ]
         build_type: [ Release, Debug ]
         cpp_compiler: [ g++, clang++ ]
         mpi: [ ON, OFF ]
+
+        exclude:
+          - os: macos-latest
+            cpp_compiler: g++
+          - os: ubuntu-latest
+            cpp_compiler: clang++
+            mpi: ON
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Install dependencies
+        if: matrix.os == 'ubuntu-latest' && matrix.mpi == 'ON'
         run: |
-          sudo apt install -y mpich python3-pybind11 python3-dev
-      
+          sudo apt install -y mpich
 
+      - name: Install dependencies
+        if: matrix.os == 'macos-latest' && matrix.mpi == 'ON'
+        run: |
+          brew install mpich
+      
       - name: Install and Test Python CUI (MPI)
         if: matrix.mpi == 'ON'
         run: |
-          pip install -U pip
+          pip install -U pip pybind11
           USE_MPI=1 pip install -U . --verbose
           echo -e 'p cnf 2 2\n1 2 0\n-1 -2 0' | mpirun -n 2 pysa-dpll sat
 
       - name: Install and Test Python CUI
         if: matrix.mpi == 'OFF'
         run: |
-          pip install -U pip
+          pip install -U pip pybind11
           pip install -U . --verbose
           echo -e 'p cnf 2 2\n1 2 0\n-1 -2 0' | pysa-dpll sat
 
       - name: Configure CMake
         run: >
-          cmake -B ${{github.workspace}}/build \
+          cmake -B ${{ github.workspace }}/build \
                 -S ${{ github.workspace }} \
                 -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
                 -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
                 -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+                -Dpybind11_DIR=$( python -m pybind11 --cmakedir ) \
                 -DMPI=${{ matrix.mpi }}
 
       - name: Build
-        run: cmake --build ${{github.workspace}}/build 
+        run: cmake --build ${{ github.workspace }}/build 
                    --config ${{ matrix.build_type }}
 
       - name: Test
-        working-directory: ${{github.workspace}}/build/tests
+        working-directory: ${{ github.workspace }}/build/tests
         run: ctest -C ${{ matrix.build_type }} --rerun-failed --output-on-failure
