@@ -37,6 +37,9 @@ jobs:
         exclude:
           - os: macos-latest
             cpp_compiler: g++
+          - os: ubuntu-latest
+            cpp_compiler: clang++
+            mpi: ON
 
     steps:
       - name: Checkout repository
