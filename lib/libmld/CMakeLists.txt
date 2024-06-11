@@ -25,5 +25,5 @@ if(USE_SIMDE)
     include_directories(./lib/simde/)
 endif ()
 # Enable testing
-include(CTest)
+enable_testing()
 add_subdirectory(./tests/)
