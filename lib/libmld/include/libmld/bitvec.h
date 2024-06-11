@@ -309,10 +309,10 @@ public:
     T* data_ptr(){
         return data;
     }
-    size_t size() const{
+    [[nodiscard]] size_t size() const{
         return n;
     }
-    friend std::ostream& operator<<(std::ostream& os, BitVec<T>& bv){
+    friend std::ostream& operator<<(std::ostream& os, const BitVec<T>& bv){
         for(size_t i = 0; i < bv.n; ++i)
             os << (bv(i)? '1': '0');
         return os;
@@ -336,28 +336,15 @@ struct BitMatrix{
         if(alnmod!=0)
             row_blocks = (alndv+1)*alignment/sizeof(T);
         data_len = row_blocks*cols;
-//#if defined(__INTEL_COMPILER)
-//	data = (T*)_mm_malloc(data_len, alignment);
-//	std::fill(data, data+data_len,0);
-//#else
+
         data = new(std::align_val_t(alignment)) T[data_len];
         std::fill(data, data+data_len, BitVecNums<T>::zero_block());
-//#endif
-//#pragma acc enter data copyin(this)
-//#pragma acc enter data create(data[0:data_len])
+
     }
     BitMatrix(const BitMatrix& mat): rows(mat.rows), row_blocks(mat.row_blocks), cols(mat.cols) {
         data_len = mat.data_len;
-//#if defined(__INTEL_COMPILER)
-//	data = (T*)_mm_malloc(data_len, alignment);
-//	std::fill(data, data+data_len,0);
-//#else
-	data = new(std::align_val_t(alignment)) T[data_len];
+	    data = new(std::align_val_t(alignment)) T[data_len];
         std::fill(data, data+data_len, BitVecNums<T>::zero_block());
-//#endif
-//#pragma acc enter data copyin(this)
-//#pragma acc enter data create(data[0:data_len])
-//#pragma acc parallel loop present(data[0:data_len],mat)
         for(uint64_t j = 0; j < cols; ++j){
             for(uint64_t bi = 0; bi < row_blocks; ++bi){
                 data[j*row_blocks + bi] = mat.data[j*row_blocks + bi];
@@ -365,21 +352,17 @@ struct BitMatrix{
         }
     }
     BitMatrix& operator=(const BitMatrix& mat){
-        for(uint64_t j = 0; j < cols; ++j){
-            for(uint64_t bi = 0; bi < row_blocks; ++bi){
-                data[j*row_blocks + bi] = mat.data[j*row_blocks + bi];
+        if(this!=&mat){
+            for(uint64_t j = 0; j < cols; ++j){
+                for(uint64_t bi = 0; bi < row_blocks; ++bi){
+                    data[j*row_blocks + bi] = mat.data[j*row_blocks + bi];
+                }
             }
-        } 
+        }
+        return *this;
     }
     ~BitMatrix(){
-//#pragma acc exit data delete(data)
-//#pragma acc exit data delete(this)
-//#if defined(__INTEL_COMPILER)
-//	_mm_free(data);
-//#else
          operator delete[](data, std::align_val_t(alignment));
-	 //delete[] data;
-//#endif
     }
     static const uint16_t bits_per_block = BitVecNums<T>::bits_per_block;
     static const size_t alignment = BitVecNums<T>::alignment;
@@ -462,42 +445,5 @@ private:
     size_t data_len;
 };
 
-
-template<typename T>
-bool axpy(const BitMatrix<T>& A, const BitMatrix<T>& x, const BitVecSlice<T>& y, BitMatrix<T>& result){
-    /// Evaluate AX + y mod 2
-    if(A.cols != x.rows || A.rows != result.rows || x.cols != result.cols){
-        return false;
-    }
-
-    for(uint64_t i = 0; i < x.cols; ++i){
-        for(uint64_t j = 0; j < A.row_blocks; ++j){
-            T block(0);
-            for(uint64_t k = 0; k < A.cols; ++k){
-                if(x(k, i)){
-                    block ^= A.get_block(j, k);
-                }
-            }
-            result.get_block(j, i) = block ^ y.get_block(j);
-        }
-    }
-    return true;
-}
-
-template<typename T>
-bool axpy(const BitMatrix<T>& A, const BitMatrix<T>& x, const BitVec<T>& y, BitMatrix<T>& result){
-    return axpy(A, x, y.as_slice(), result);
-}
-
-template<typename T>
-bool bitvec_add(const BitVecSlice<T>& a, const BitVecSlice<T>& b, BitVec<T>& result){
-    if(a.size() != b.size()){
-        return false;
-    }
-    for(size_t i = 0; i < a.size(); ++i){
-        result.get_block(i) = a.get_block(i) ^ b.get_block(i);
-    }
-    return true;
-}
 
 #endif //LIBMLD_Bitarr_H
