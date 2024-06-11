@@ -19,6 +19,7 @@ project(stern)
 option(MPI "Build with MPI" OFF)
 option(AVX2 "Enable AVX2" ON)
 option(USE_SIMDE "Enable using the simde library" ON)
+option(PYMODULES "Build Python Modules for PySA" ON)
 
 enable_testing()
 
@@ -127,58 +128,4 @@ if(MPI AND CMAKE_Fortran_COMPILER_ID STREQUAL "Intel")
 endif()
 
 ## Add tests
-add_custom_command(
-  TARGET sternx POST_BUILD
-  COMMAND ${CMAKE_COMMAND}
-    -E make_directory ${CMAKE_CURRENT_BINARY_DIR}/tests
-  COMMAND ${CMAKE_COMMAND}
-    -E copy ${CMAKE_CURRENT_SOURCE_DIR}/lib/libmld/tests/test_n120_t8_k64_mld.txt
-    ${CMAKE_CURRENT_BINARY_DIR}/tests/
-)
-
-if(MPI)
-  set(MPI_SINGLETON ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG} 1 )
-endif()
-
-add_test(NAME test_sternx_1 
-         COMMAND ${MPI_SINGLETON} ../sternx test_n120_t8_k64_mld.txt --bench
-                                                 --sterncpp 
-                                                 --max_iters 5000
-         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/tests)
-
-foreach(BLOCK_SIZE 8 16 32)
-  add_test(NAME "test_sternx_b${BLOCK_SIZE}"
-           COMMAND ${MPI_SINGLETON}  ../sternx test_n120_t8_k64_mld.txt --block-size ${BLOCK_SIZE}
-                                                   --bench 
-                                                   --sterncpp 
-                                                   --max_iters 5000
-           WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/tests)
-endforeach()
-
-foreach(PARAMS IN ITEMS "1;8" "1;16" "1;32" "2;8" "4;8" "8;8" "32;32")
-  list(GET PARAMS 0 M)
-  list(GET PARAMS 1 L)
-  add_test(NAME "test_sternx_m${M}l${L}"
-           COMMAND ${MPI_SINGLETON} ../sternx test_n120_t8_k64_mld.txt -m ${M} -l ${L}
-                                                   --bench
-                                                   --sterncpp
-                                                   --max_iters 5000
-           WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/tests)
-endforeach()
-
-set_tests_properties(test_sternx_m32l32 PROPERTIES WILL_FAIL TRUE)
-
-if(MPI)
-  add_test(NAME test_sternx_mpi 
-           COMMAND ${MPIEXEC_EXECUTABLE} ${MPIEXEC_NUMPROC_FLAG}
-                                         ${MPIEXEC_MAX_NUMPROCS}
-                                         ${MPIEXEC_PREFLAGS}
-                                         ../sternx test_n120_t8_k64_mld.txt 
-                                            --bench 
-                                            --sterncpp 
-                                            --max_iters 50000
-           WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/tests)
-
-  # prevent error on macos
-  set_tests_properties(test_sternx_mpi PROPERTIES ENVIRONMENT TMPDIR=/tmp)  
-endif()
+add_subdirectory(./tests)
