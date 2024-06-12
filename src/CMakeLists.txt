@@ -25,6 +25,4 @@ include_directories(../include)
 
 # Add executable to compile
 add_executable(dpll-sat.x dpll-sat.cpp)
-add_executable(walk-sat.x walk-sat.cpp)
 add_dependencies(dpll-sat.x pysa-branching)
-add_dependencies(walk-sat.x pysa-branching)
