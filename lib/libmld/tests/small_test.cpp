@@ -28,11 +28,8 @@ typedef uint64_t my_int_t;
 int main() {
   MLDProblem problem;
 
-  // std::ifstream fs("small_test.mld");
   std::ifstream fs("test_n120_t8_k64_mld.txt");
   problem.read_problem(fs);
-  //    BitMatrix<my_int_t> mat = problem.clauses_as_bitmatrix<my_int_t>();
-  //    std::cout << mat << std::endl;
   uint64_t n = problem.NVars();
   uint64_t k = problem.CodeDim();
   uint32_t w = problem.Weight();

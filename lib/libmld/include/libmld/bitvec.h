@@ -46,17 +46,7 @@ struct BitVecNums<T,
   //! Frequently used static constants for T.
   static const int16_t bits_per_block = std::numeric_limits<T>::digits;
   static const T ones_mask = static_cast<T>(-1);
-  //    static const size_t alignment = alignof(T);
-  // #if defined(__AVX2__)
-  //    static const size_t alignment = 32; // 4*8 byte = 32 byte = 256-bit
-  //    alignment at the start of each column
-  // #elif defined(__SSE4_2__)
-  //    static const size_t alignment = 16;
-  // #elif defined(__aarch64__)
-  //    static const size_t alignment = alignof(T);
-  // #else
   static const size_t alignment = std::max<size_t>(alignof(T), 16);
-  // #endif
   static const size_t aligned_num_blocks = alignment / sizeof(T);
 
   static inline T zero_block() { return T(0); }

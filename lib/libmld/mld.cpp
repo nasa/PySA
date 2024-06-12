@@ -51,7 +51,7 @@ void MLDProblem::read_problem(std::istream &input_stream) {
     throw MLDException(std::string("Problem type ") + prob_type_c +
                        " not recognized");
   }
-  // blcmatrix = std::unique_ptr<BinaryMat>(new BinaryMat(nrows, nvars+1));
+
   yarr.resize(nrows);
   clauses.resize(nrows);
   if (y > 0) {

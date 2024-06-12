@@ -39,7 +39,6 @@ enum MLDType { G, H, P, W };
 
 class MLDProblem {
 public:
-  // MLDProblem(uint8_t y=0) : y(y), nvars(0), nrows(0) {};
   MLDProblem() = default;
   MLDProblem(const MLDProblem &) = default;
   void read_problem(std::istream &input_stream);

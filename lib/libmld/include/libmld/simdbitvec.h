@@ -78,11 +78,6 @@ struct BitVecNums<simde__m256i, typename std::enable_if<true>::type> {
         BitVecNums<uint64_t>::popcount(simde_mm256_extract_epi64(a, 1)) +
         BitVecNums<uint64_t>::popcount(simde_mm256_extract_epi64(a, 2)) +
         BitVecNums<uint64_t>::popcount(simde_mm256_extract_epi64(a, 3));
-    //        auto pops =  simde_mm256_popcnt_epi64(a);
-    //        uint64_t hw = simde_mm256_extract_epi64(pops, 0) +
-    //        simde_mm256_extract_epi64(pops, 1)
-    //                + simde_mm256_extract_epi64(pops,
-    //                2)+simde_mm256_extract_epi64(pops, 3);
     return hw;
   }
   inline static void set_bit(simde__m256i *arr, size_t i, bool val) {

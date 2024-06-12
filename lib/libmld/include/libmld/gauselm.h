@@ -48,7 +48,6 @@ uint64_t gaussian_elimination(BitMatrix<T> &Amat, std::vector<size_t> &columns,
     if (pivt == n)
       continue;
     if (pivt != rowi) { // swap rows pivt and rowi
-// #pragma acc loop gang
 #if defined(__INTEL_COMPILER)
 #pragma ivdep
 #endif

@@ -22,8 +22,6 @@ specific language governing permissions and limitations under the License.
 #include <vector>
 
 inline double log2_binomial(double n, double k) {
-  // return n*shannon_h(k/n) + 0.5*(std::log2(n) - std::log2(k) -
-  // std::log2(n-k));
   return (std::lgamma(n + 1) - std::lgamma(k + 1) - std::lgamma(n - k + 1)) /
          std::log(2.0);
 }

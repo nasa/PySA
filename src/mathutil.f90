@@ -167,27 +167,6 @@ contains
         else
             iter = .true.
         end if
-!        i = this%k
-!        if(this%c(i) < this%n - 1) then
-!            this%c(i) = this%c(i) + 1
-!            iter=.true.
-!        else
-!            do
-!                if(i==1) then
-!                    iter=.false.
-!                    return
-!                end if
-!                if(this%c(i-1)/= this%c(i)-1) exit
-!                i = i - 1
-!            end do
-!            this%c(i-1) = this%c(i-1) + 1
-!            do
-!                if(i>this%k) exit
-!                this%c(i) = this%c(i-1)+1
-!                i = i + 1
-!            end do
-!            iter=.true.
-!        end if
 
     end function comboiter_next
 end module mathutil

@@ -134,14 +134,8 @@ public:
     T *Gpn = &G.get_block(0, n);
     T y_row = G.get_block(0, n);
     for (uint32_t j = 0; j < k2; ++j) {
-      //            size_t colj = info_set[k1 + j];
-      //            T *Gpj = &G.get_block(0, colj);
-      // T _tmpi = Gpj[0] ^ y_row;
       T _tmpi = work_vec_row[k1 + j] ^ y_row;
       for (uint32_t i = 0; i < k1; ++i) {
-        //                size_t coli = info_set[i];
-        //                T *Gpi = &G.get_block(0, coli);
-        // work_vec_row2[i] = work_vec_row[i] ^ _tmpi;
         T _tmp = work_vec_row[i] ^ _tmpi;
         bool _tst;
         if constexpr (testhw1) {
@@ -149,9 +143,6 @@ public:
         } else {
           _tst = nzpopblk<T, U>(_tmp);
         }
-        // T _tmp = Gpi[0] ^ _tmpi;
-        //}
-        // for (uint32_t i = 0; i < k1; ++i) {
         if (_tst) {
           size_t colj = info_set[k1 + j];
           T *Gpj = &G.get_block(0, colj);
