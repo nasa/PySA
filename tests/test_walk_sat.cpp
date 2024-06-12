@@ -18,7 +18,7 @@ specific language governing permissions and limitations under the License.
 #include <iostream>
 #include <unordered_set>
 
-#include <pysa/sat/sat.hpp>
+#include <pysa/sat/instance.hpp>
 #include <pysa/sat/walksat.hpp>
 
 int main(){

@@ -21,8 +21,8 @@ cmake_minimum_required(VERSION 3.5)
 project(pysa-walksat-main LANGUAGES CXX)
 
 # add includes
-include_directories(${CMAKE_SOURCE_DIR}/include)
-include_directories(${CMAKE_SOURCE_DIR}/lib/PySA-dpll/include)
+include_directories(../include)
+include_directories(../lib/PySA-dpll/include)
 ExternalProject_Get_Property(pysa-branching install_dir)
 include_directories(${install_dir}/src/pysa-branching/include)
 
