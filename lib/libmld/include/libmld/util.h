@@ -17,6 +17,7 @@ specific language governing permissions and limitations under the License.
 
 #ifndef LIBMLD_UTIL_H
 #define LIBMLD_UTIL_H
+#include <cstddef>
 #include <cstdint>
 
 #if defined(__cplusplus) && (__cplusplus >= 202002L)
