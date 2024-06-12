@@ -132,7 +132,6 @@ subroutine sternc(cinarr, sternopts)
     integer, dimension(:), allocatable :: rank_nsuccesses
     type(MPI_Request) :: mpireq, mpireq2
 #endif
-    ! call mpi_init(rc)
     master_rank = 0
     ! Get number of active processes.
 #ifdef USEMPI
@@ -193,7 +192,6 @@ subroutine sternc(cinarr, sternopts)
     allocate(stern_solution(numvars))
     allocate(isd_sol(k))
     allocate(code_solution(k))
-    !print '(A)', "Calling sternc"
     if(l_>=L0) then
         if(mod(l_, L0) /= 0) then
             if(rank==0) print '(A, I8)', "Adjusted l to ", (l_/L0)*L0
@@ -235,7 +233,6 @@ subroutine sternc(cinarr, sternopts)
             call make_stern_combos(stern_atk, wrk)
             call collision_search(stern_atk, wrk, t, mfound)
         end if
-        ! call stern_atk%sternatk_combo_iter(wrk, t, mfound)
 #ifdef USEMPI
         ! If master rank, check if another rank has finished
         if(opts%bench==0) then

@@ -228,9 +228,7 @@ contains
                     do i2=1,st%nclauses
                         hw = hw + wrk%colwork(i2, m2)
                     end do
-                    !write(*, '(I4)', advance='no') hw
                     if (hw > w-2*p) goto 200 ! continue loop (HW too large)
-                    !write(*, '(A)') '!'
                     ! At this point, we found the solution with the desired Hamming weight
                     ! w-2p errors in the redundancy set
                     wrk%bestsols(:, m2) = 0
