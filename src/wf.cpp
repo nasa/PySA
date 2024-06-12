@@ -18,24 +18,20 @@ specific language governing permissions and limitations under the License.
 #include "sternx/wf.h"
 #include <iostream>
 
-std::vector<double> combo_dist(long n, long k, long t){
-    // Evaluate the log-probabilities that, in a random IR split
-    // of an [n, k] code, w errors will be contained in the redundancy set,
-    // where  0 <= w <= t
-    std::vector<double> pdist(t+1, 0.0);
-    double z = log2_binomial(n, k);
-    for(long w = 0; w <= t; ++w){
-        if(w == 0){
-            pdist[w] = log2_binomial(n - t, k) - z;
-        } else if (w == t){
-            pdist[w] = log2_binomial(n - t, k - t) - z;
-        } else{
-            pdist[w] = log2_binomial(n - t, k - w)
-                    + log2_binomial(t, w) - z;
-        }
-
+std::vector<double> combo_dist(long n, long k, long t) {
+  // Evaluate the log-probabilities that, in a random IR split
+  // of an [n, k] code, w errors will be contained in the redundancy set,
+  // where  0 <= w <= t
+  std::vector<double> pdist(t + 1, 0.0);
+  double z = log2_binomial(n, k);
+  for (long w = 0; w <= t; ++w) {
+    if (w == 0) {
+      pdist[w] = log2_binomial(n - t, k) - z;
+    } else if (w == t) {
+      pdist[w] = log2_binomial(n - t, k - t) - z;
+    } else {
+      pdist[w] = log2_binomial(n - t, k - w) + log2_binomial(t, w) - z;
     }
-    return pdist;
+  }
+  return pdist;
 }
-
-
