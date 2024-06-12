@@ -20,6 +20,9 @@ cmake_minimum_required(VERSION 3.5)
 # Set the project name
 project(pysa-walksat LANGUAGES CXX)
 
+# Enable testing
+enable_testing()
+
 # Set the C++ standard to c++17
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -60,5 +63,5 @@ endif()
 # Add executable, tests, and examples
 add_subdirectory(lib/PySA-dpll)
 add_subdirectory(src)
-#add_subdirectory(tests)
+add_subdirectory(tests)
 #add_subdirectory(examples)
