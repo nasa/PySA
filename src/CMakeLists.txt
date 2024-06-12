@@ -27,4 +27,4 @@ ExternalProject_Get_Property(pysa-branching install_dir)
 include_directories(${install_dir}/src/pysa-branching/include)
 
 # Add executable to compile
-add_executable(walk-sat2.x walk-sat.cpp)
+add_executable(walk-sat.x walk-sat.cpp)
