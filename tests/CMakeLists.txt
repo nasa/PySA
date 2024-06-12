@@ -21,7 +21,7 @@ cmake_minimum_required(VERSION 3.5)
 project(pysa-dpll-test LANGUAGES CXX)
 
 # Add PySA include
-include_directories(${CMAKE_SOURCE_DIR}/include)
+include_directories(../include)
 
 # Add executable to compile
 add_executable(test_dpll_sat.x test_dpll_sat.cpp)
