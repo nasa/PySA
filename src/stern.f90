@@ -226,7 +226,6 @@ contains
             this%workn(i) = i
         end do
         call ishuffle(this%workn(1:n))
-        !print '(*(I3))', this%workn(1:n)
         call gaussian_elim(this%G(:, :), rank, this%workn(1:n))
         if(rank /= this%nclauses) then
             print '(A, I8, I8)', "Assertion failed (rank == nclauses), ", rank, this%nclauses
@@ -246,7 +245,7 @@ contains
                 this%coltypes(j) = isdty
             end if
         end do
-        !print '(*(I3))', this%coltypes(:)
+
         do i2=1,this%nclauses
             j = this%rdncols(i2)
             if(this%G(i2, j) /= 1) then
@@ -260,12 +259,6 @@ contains
                 end if
             end do
         end do
-! #ifndef NDEBUG
-!         write(*, '(A)') "Gaussian eliminated matrix:"
-!         do i = 1,this%nclauses
-!             write(*,'(*(I2))') this%G(i, :)
-!         end do
-! #endif
     end subroutine sternatk_restart_rdn
 
     subroutine sternatk_set_workisd(this)

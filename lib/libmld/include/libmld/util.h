@@ -17,6 +17,7 @@ specific language governing permissions and limitations under the License.
 
 #ifndef LIBMLD_UTIL_H
 #define LIBMLD_UTIL_H
+#include <cstddef>
 #include <cstdint>
 
 #if defined(__cplusplus) && (__cplusplus >= 202002L)
@@ -25,12 +26,12 @@ specific language governing permissions and limitations under the License.
 #include <bitset>
 #endif
 
-template<typename T> size_t _popcount(T x){
+template <typename T> size_t _popcount(T x) {
 #if defined(__cplusplus) && (__cplusplus >= 202002L)
-    return std::popcount(x);
+  return std::popcount(x);
 #else
-    return std::bitset<64>(x).count();
+  return std::bitset<64>(x).count();
 #endif
 };
 
-#endif //LIBMLD_UTIL_H
+#endif // LIBMLD_UTIL_H

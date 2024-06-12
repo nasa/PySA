@@ -242,12 +242,10 @@ subroutine sternc(cinarr, sternopts)
             if(rank == master_rank) then
                 call MPI_Test(mpireq, mpiflag, MPI_STATUS_IGNORE, ierr)
                 if(mpiflag) then
-                    !write(*, '(A,I8,A,2(I8))') "MPI", rank, ": received ", compl_buf
                     if(compl_buf(3) > 0) then ! broadcast successful completion from another rank and terminate
                         compl(:) = compl_buf(:)
                         call MPI_Ibcast(compl, 3, MPI_INTEGER8, master_rank, MPI_COMM_WORLD, mpireq2, ierr)
                         call MPI_Wait(mpireq2, MPI_STATUS_IGNORE, ierr)
-                        !write(*, '(A,I8,A,2(I8))') "MPI", rank, ": broadcasted ", compl
                         exit
                     else
                         call MPI_Irecv(compl_buf, 3, MPI_INTEGER8, MPI_ANY_SOURCE, 1, MPI_COMM_WORLD, mpireq, ierr)
@@ -256,7 +254,6 @@ subroutine sternc(cinarr, sternopts)
             else ! Check if the master rank has broadcasted completion
                 call MPI_Test(mpireq, mpiflag, MPI_STATUS_IGNORE, ierr)
                 if(mpiflag) then
-                    !write(*, '(A,I8,A,2(I8))') "MPI ", rank, ": received broadcast ", compl_buf
                     compl(:) = compl_buf(:)
                     exit
                 end if
@@ -267,8 +264,6 @@ subroutine sternc(cinarr, sternopts)
         ! check MPI_Test, and then worker hangs on MPI_Send while master hangs on MPI_Wait. This is extremely unlikely
         ! but might be worth addressing.
         if(mfound > 0) then
-            ! write(*, '(A,I8,A,I8,A)') "Rank ", rank, " found solution after ", i, " iterations."
-            ! print '(*(I2))', wrk%bestsols(:, mfound)
             stern_solution(:) = wrk%bestsols(:, mfound)
             isd_sol(:) = stern_atk%workisd(:)
             compl(1) = rank
@@ -279,14 +274,10 @@ subroutine sternc(cinarr, sternopts)
             niters = i
 #ifdef USEMPI
             if(rank == master_rank .and. opts%bench==0) then
-                !write(*, '(A,I8,A,2(I8))') "MPI ", rank, ": broadcasting ", compl
                 call MPI_Ibcast(compl, 3, MPI_INTEGER8, master_rank, MPI_COMM_WORLD, mpireq2, ierr)
                 call MPI_Wait(mpireq2, MPI_STATUS_IGNORE, ierr)
-                !write(*, '(A,I8,A)') "MPI ", rank, ": broadcast completed."
             else ! If not master rank, send the termination signal to the master rank
-                !write(*, '(A,I8,A,2(I8))') "MPI ", rank, ": sending ", compl
                 call MPI_Send(compl, 3, MPI_INTEGER8, master_rank, 1, MPI_COMM_WORLD, ierr)
-                !write(*, '(A,I8,A)') "MPI ", rank, ": send completed."
             end if
 #endif 
             if(opts%bench == 0) exit 
@@ -363,9 +354,6 @@ subroutine sternc(cinarr, sternopts)
             
             if(sternopts%parcheck==0) then
                 stern_solution = ieor(stern_solution, inputarr(:, k+1))
-                !print '(*(I2))', stern_solution
-                !call print_f2_array(stern_solution)
-                !print '(*(I4))', isd_sol
                 call isd_decode(garr, stern_solution, isd_sol, code_solution)
                 print '(A)', "Decoded vector ="
                 call print_f2_array(code_solution)
@@ -375,9 +363,5 @@ subroutine sternc(cinarr, sternopts)
             print '(A)', "No solution"
         end if
     end if
-    
-    
-
-    !call mpi_finalize(rc)
 
 end subroutine sternc

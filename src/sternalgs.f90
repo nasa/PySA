@@ -40,14 +40,6 @@ contains
         ! update the information set and randomly split
         call st%sternatk_set_workisd()
         call ishuffle(st%workisd)
-        ! #ifndef NDEBUG
-        !         print '(A,I4,A,I8,I8)', "Constructing combinations: p=", p, " K=",wrk%kx(1),wrk%kx(2)
-        !         print '(A, I8, I8)', "Number of combinations: ", wrk%nx(1), wrk%nx(2)
-        !         print '(A)', "Split 1:"
-        !         print '(*(I4))', st%workisd(1:khalf)
-        !         print '(A)', "Split 2:"
-        !         print '(*(I4))', st%workisd(khalf+1:k)
-        ! #endif
         call combo_iter(1)%comboiter_init(wrk%kx(1), p)
         call combo_iter(2)%comboiter_init(wrk%kx(2), p)
 
@@ -185,26 +177,20 @@ contains
         khalf = k / 2
         wrk%isdsols(:, :) = 0
         mfound = 0
-        !print '(A,I4,A,I4,A,I4)', "p=1, w=", w, "ncl=",st%nclauses," naux=",st%naux
         ! update the information set and randomly partition it
         call st%sternatk_set_workisd()
         call ishuffle(st%workisd)
-        !print '(*(I3))', st%workisd
         ! copy the shuffled columns into the work array
         do x=1,2
             do i = 1, wrk%kx(x)
                 wrk%combos(:, i, x) = st%G(:, st%workisd((x-1)*khalf + i)  )
             end do
         end do
-        !print '(A,*(I3))', "Rdn: ", st%rdncols(:)
-        !print('(A,*(I3))'), " I1: ", st%workisd(1:khalf)
-        !print('(A,*(I3))'), " I2: ", st%workisd(khalf+1:k)
         ! randomly select l redundancy bits
         if(l>0 .and. .not. wrk%qcol) then
             do m2 =1,m
                 call rand_choice(st%nclauses, l, wrk%colpos(:, m2))
             end do
-            !print('(A,*(I3))'), "lbits: ", wrk%colpos(:, m2)
         end if
         do m2 = 1, m
             do i = 1, wrk%kx(1)
@@ -261,7 +247,6 @@ contains
                 end do
             end do
         end do
-        ! write(*,*)
         
     end subroutine collision_search_p1
 end module sternalgs
