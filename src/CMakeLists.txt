@@ -20,7 +20,7 @@ add_subdirectory(stern_fort)
 find_package(Boost 1.46.0
         REQUIRED COMPONENTS program_options chrono timer)
 
-add_library(sterncpp wf.cpp stern.cpp)
+add_library(sterncpp SHARED wf.cpp stern.cpp)
 add_executable(sternx main.cpp)
 add_executable(mldpt pt.cpp )
 
