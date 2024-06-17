@@ -1,6 +1,5 @@
 import sys
 import setuptools
-from setuptools import setup, Extension, find_packages
 from pathlib import Path
 
 from cmake_build_extension import CMakeExtension, BuildExtension
@@ -23,11 +22,5 @@ setuptools.setup(
             cmake_component="bindings",
         ),
     ],
-    cmdclass=dict(
-        # Enable the CMakeExtension entries defined above
-        build_ext=BuildExtension,
-        # If the setup.py or setup.cfg are in a subfolder wrt the main CMakeLists.txt,
-        # you can use the following custom command to create the source distribution.
-        # sdist=cmake_build_extension.GitSdistFolder
-    )
+    cmdclass=dict(build_ext=BuildExtension)
 )

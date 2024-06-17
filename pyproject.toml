@@ -14,6 +14,7 @@ name = "pysa-stern"
 authors =[ { name="Humberto Munoz Bauza", email="Humberto.MunozBauza@nasa.gov" }]
 description = "Stern algorithm solver for the PySA suite"
 version = "0.0.1"
+requires-python = ">= 3.8"
 readme = {file = "README.md", content-type="text/markdown"}
 keywords =[ "Stern", "Linear Codes", "McEliece", "Cryptography"]
 classifiers =[
