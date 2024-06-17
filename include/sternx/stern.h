@@ -66,5 +66,5 @@ std::optional<std::vector<uint8_t>> sterncpp(MLDProblem &, sternc_opts &);
 
 std::optional<std::vector<uint8_t>> sterncpp_main(MLDProblem &mld_problem, sternc_opts &opts);
 
-std::optional<sternc_opts> sterncpp_adjust_opts(const sternc_opts &opts);
+sternc_opts sterncpp_adjust_opts(const sternc_opts &opts);
 #endif // STERN_STERN_H

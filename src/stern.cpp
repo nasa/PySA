@@ -19,6 +19,7 @@ specific language governing permissions and limitations under the License.
 #include "boost/timer/timer.hpp"
 #include "libmld/isd.h"
 #include "libmld/simdbitvec.h"
+#include <exception>
 #include <iostream>
 #include <random>
 #ifdef USEMPI
@@ -299,9 +300,10 @@ std::optional<std::vector<uint8_t>> sterncpp_main(MLDProblem &mld_problem, stern
   }
 }
 
-std::optional<sternc_opts> sterncpp_adjust_opts(const sternc_opts &opts) {
+sternc_opts sterncpp_adjust_opts(const sternc_opts &opts) {
   sternc_opts new_opts(opts);
   int mpi_rank = 0;
+  std::stringstream oss;
 #ifdef USEMPI
   MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
 #endif
@@ -314,9 +316,8 @@ std::optional<sternc_opts> sterncpp_adjust_opts(const sternc_opts &opts) {
   } else if (opts.l <= 32) {
     new_opts.l = 32;
   } else {
-    if (mpi_rank == 0)
-      std::cout << "Option -l " << opts.l << " not supported.\n";
-    return {};
+    oss << "Option -l " << opts.l << " not supported.\n";
+    throw std::runtime_error(oss.str());
   }
   if (opts.m <= 0) {
     new_opts.m = 0;
@@ -333,9 +334,8 @@ std::optional<sternc_opts> sterncpp_adjust_opts(const sternc_opts &opts) {
   } else if (opts.m <= 32) {
     new_opts.m = 32;
   } else {
-    if (mpi_rank == 0)
-      std::cout << "Option -m " << opts.m << " not supported.\n";
-    return {};
+    oss << "Option -m " << opts.m << " not supported.\n";
+    throw std::runtime_error(oss.str());
   }
   size_t block_size;
   if (opts.m > 0 &&
@@ -343,17 +343,16 @@ std::optional<sternc_opts> sterncpp_adjust_opts(const sternc_opts &opts) {
     block_size = (opts.l) * opts.m;
 #if defined(USE_SIMDE)
     if (block_size > 128) {
-      if (mpi_rank == 0)
-        std::cout << "-l and -m combination not supported.\n";
+      oss << "-l and -m combination not supported.\n";
 #else
     if (block_size > 64) {
       if (mpi_rank == 0)
-        std::cout << "-l and -m combination not supported.\n";
+        oss << "-l and -m combination not supported.\n";
 #endif
-      return {};
+      throw std::runtime_error(oss.str());
     }
     if (mpi_rank == 0)
-      std::cout << "Set block size " << block_size << "\n";
+      std::cout << "Set block size to " << block_size << "\n";
     if (opts.block_size > 0) {
       if (mpi_rank == 0)
         std::cout << "Note: -l and -m will override --block-size\n";
@@ -371,10 +370,9 @@ std::optional<sternc_opts> sterncpp_adjust_opts(const sternc_opts &opts) {
       block_size = opts.block_size;
       break;
     default:
-      if (mpi_rank == 0)
-        std::cout << "Option --block-size " << opts.block_size
+      oss << "Option --block-size " << opts.block_size
                   << " not valid.\n";
-      return {};
+      throw std::runtime_error(oss.str());
     }
   } else { // use number of clauses (rows) to determine block size
     if (opts.nclauses <= 8) {

@@ -1,5 +1,6 @@
 import argparse
-
+import sys
+import pathlib
 from pysa_stern.mld import MLDProblem
 from pysa_stern.bindings import SternOpts, sterncpp_adjust_opts
 from pysa_stern.sterncpp import pysa_sternx
@@ -51,15 +52,22 @@ def PySA_Stern_main():
     try:
         with open(args.input) as f:
             problem.read_problem(f)
-    except RuntimeError as e:
-        print(e)
+    except Exception as e:
+        print(f"Problem reading MLD file ({args.input}).", file=sys.stderr)
+        print(e, file=sys.stderr)
         exit(1)
-    stern_opts.l = args.l if args.col_size is not None else -1
+    stern_opts.l = args.col_size if args.col_size is not None else -1
     stern_opts.m = args.col_sets 
+    stern_opts.block_size = args.block_size
     stern_opts.bench = 1 if args.bench else 0
     stern_opts.test_hw1 = 1 if args.test_hw1 else 0
     stern_opts.max_iters = args.max_iters
-    adjusted_opts = sterncpp_adjust_opts(stern_opts)
+    try:
+        adjusted_opts = sterncpp_adjust_opts(stern_opts)
+    except RuntimeError as e:
+        print(f"Problem with passed options.", file=sys.stderr)
+        print(e, file=sys.stderr)
+        exit(1)
     sol_arr = pysa_sternx(problem, adjusted_opts)
     if sol_arr is not None:
         print(f"[PySA-Stern] Solution found: ")

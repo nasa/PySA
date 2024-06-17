@@ -105,6 +105,7 @@ PySA-sternx: Stern algorithm for unstructured decoding problems.
         .def_readwrite("l", &sternc_opts::l)
         .def_readwrite("p", &sternc_opts::p)
         .def_readwrite("m", &sternc_opts::m)
+        .def_readwrite("block_size", &sternc_opts::block_size)
         .doc() =  "Options for the Stern algorithm routine."
         //.def_readwrite("nvars", &sternc_opts::nvars)
     ;

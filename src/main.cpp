@@ -127,14 +127,16 @@ int main(int argc, char **argv) {
               << " t = " << t << '\n';
   }
 
-  std::optional<sternc_opts> _valid_opts = sterncpp_adjust_opts(opts);
-  if (!_valid_opts) {
+  sternc_opts valid_opts;
+  try {
+    valid_opts = sterncpp_adjust_opts(opts);
+  } catch(std::exception& e) {
 #ifdef USEMPI
     MPI_Finalize();
 #endif
+    std::cerr << e.what();
     return 1;
   }
-  sternc_opts &valid_opts = *_valid_opts;
 
   double success_bits, psucc, iterwork, nts;
 
