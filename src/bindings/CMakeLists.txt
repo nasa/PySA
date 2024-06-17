@@ -33,7 +33,7 @@ set_target_properties(pysa_stern_ext PROPERTIES
         OUTPUT_NAME "bindings")
 # Installs only the Python extension object when the "bindings" component is specified in setup.py
 install(
-        TARGETS pysa_stern_ext
+        TARGETS pysa_stern_ext sterncpp
         DESTINATION ${CMAKE_INSTALL_PREFIX}
         COMPONENT bindings
 )

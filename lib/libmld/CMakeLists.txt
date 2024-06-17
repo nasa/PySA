@@ -19,8 +19,6 @@ set(SIMDE_PATH ./lib/simde)
 option(USE_SIMDE "Use the SIMDE library" ON)
 set(CMAKE_CXX_STANDARD 20)
 
-add_library(libmld STATIC mld.cpp)
-target_include_directories(libmld PUBLIC include)
 if(USE_SIMDE)
     include_directories(./lib/simde/)
 endif ()

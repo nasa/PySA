@@ -23,7 +23,6 @@ add_custom_command(
         ${CMAKE_CURRENT_BINARY_DIR})
 add_test(NAME test_libmld COMMAND small_test )
 target_include_directories(small_test PUBLIC ../include)
-target_link_libraries(small_test libmld)
 
 add_custom_target(run_tests
         COMMAND ctest

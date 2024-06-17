@@ -19,7 +19,6 @@ specific language governing permissions and limitations under the License.
 #include <sstream>
 
 
-
 int MLDProblem::read_problem(std::istream &input_stream) {
   std::string line;
   std::getline(input_stream, line);
