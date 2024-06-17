@@ -50,7 +50,14 @@ jobs:
         uses: actions/checkout@v3
         with:
           submodules: 'true'
-
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.12
+      - name: Install Python dependencies
+        run: >
+          python -m pip install --upgrade pip setuptools wheel
+          python -m pip install pybind11 numpy
       # macOS clang++ should interop with gfortran 13 and 14.
       # Due to available options for these actions, gfortran 13 is tested without MPI,
       # but gfortran 14 (latest) is tested with MPI
