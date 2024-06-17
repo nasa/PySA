@@ -12,7 +12,7 @@ def PySA_Stern_main():
     parser.add_argument(
         "--col-size", "-l",
         type=int,
-        default=None,
+        default=0,
         help="Size of collision set to check. "
         'By default, check the entire column sum ("Heavy" Stern).',
     )
@@ -26,7 +26,7 @@ def PySA_Stern_main():
     parser.add_argument(
         "--block-size", 
         type=int, 
-        default=None,
+        default=0,
         help="Block size of parity check bit columns."
     )
     # Maximum resources and benchmarking

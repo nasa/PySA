@@ -41,7 +41,7 @@ struct sternc_opts {
   /// rows of the parity check matrix n-k. Otherwise, it is the number of rows
   /// of the generator matrix transpose n.
   int32_t nclauses = 0;
-  /// (F, C) Error weight
+  /// (F) Error weight
   int32_t t = -1;
   /// (F, C) Maximum number of iterations of the Stern algorithm
   int32_t max_iters;
@@ -58,7 +58,7 @@ struct sternc_opts {
   /// or 64. Additionally 128 is available if SIMDE is enabled. By default, it
   /// is chosen as the largest available option less than 2*nclauses. If both l
   /// and m are set, it is automatically set to l*m.
-  int32_t block_size = -1;
+  int32_t block_size = 0;
 };
 
 template <typename stern_uint_t = uint32_t>
