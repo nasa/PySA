@@ -108,7 +108,6 @@ int main(int argc, char **argv) {
   int32_t k = problem.CodeDim();
   int32_t t = problem.Weight();
 
-  size_t block_size;
   opts.parcheck = (problem.is_parcheck() ? 1 : 0);
   opts.nvars = problem.NVars();
   opts.nclauses = problem.NClauses();
@@ -128,11 +127,14 @@ int main(int argc, char **argv) {
               << " t = " << t << '\n';
   }
 
-  bool valid_opts = sterncpp_adjust_opts(opts, block_size);
-  if (!valid_opts) {
+  sternc_opts valid_opts;
+  try {
+    valid_opts = sterncpp_adjust_opts(opts);
+  } catch(std::exception& e) {
 #ifdef USEMPI
     MPI_Finalize();
 #endif
+    std::cerr << e.what();
     return 1;
   }
 
@@ -168,9 +170,9 @@ int main(int argc, char **argv) {
 
   auto binmat = problem.clauses_as_binmat(true);
   if (use_sterncpp) {
-    sterncpp_main(problem, opts, block_size);
+    sterncpp_main(problem, valid_opts);
   } else {
-    sternc_(binmat.data(), &opts);
+    sternc_(binmat.data(), &valid_opts);
   }
 
 #ifdef USEMPI

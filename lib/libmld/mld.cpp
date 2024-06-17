@@ -18,7 +18,8 @@ specific language governing permissions and limitations under the License.
 #include "libmld/mld.h"
 #include <sstream>
 
-void MLDProblem::read_problem(std::istream &input_stream) {
+
+int MLDProblem::read_problem(std::istream &input_stream) {
   std::string line;
   std::getline(input_stream, line);
   if (!input_stream) {
@@ -93,4 +94,10 @@ void MLDProblem::read_problem(std::istream &input_stream) {
     }
     i += 1;
   }
+  return 1;
+}
+
+int  MLDProblem::read_problem_string(char* problem_string){
+  std::stringstream oss(problem_string);
+  return read_problem(oss);
 }

@@ -16,7 +16,6 @@ specific language governing permissions and limitations under the License.
 */
 
 #include "sternx/wf.h"
-#include <iostream>
 
 std::vector<double> combo_dist(long n, long k, long t) {
   // Evaluate the log-probabilities that, in a random IR split

@@ -19,6 +19,7 @@ specific language governing permissions and limitations under the License.
 #define STERN_STERN_H
 #include "libmld/mld.h"
 #include <cstdint>
+#include <optional>
 
 struct sternc_opts {
   /// (F) Problem defines a parity check matrix if true. Otherwise it defines
@@ -40,7 +41,7 @@ struct sternc_opts {
   /// rows of the parity check matrix n-k. Otherwise, it is the number of rows
   /// of the generator matrix transpose n.
   int32_t nclauses = 0;
-  /// (F, C) Error weight
+  /// (F) Error weight
   int32_t t = -1;
   /// (F, C) Maximum number of iterations of the Stern algorithm
   int32_t max_iters;
@@ -57,14 +58,13 @@ struct sternc_opts {
   /// or 64. Additionally 128 is available if SIMDE is enabled. By default, it
   /// is chosen as the largest available option less than 2*nclauses. If both l
   /// and m are set, it is automatically set to l*m.
-  int32_t block_size = -1;
+  int32_t block_size = 0;
 };
 
 template <typename stern_uint_t = uint32_t>
-void sterncpp(MLDProblem &, sternc_opts &);
+std::optional<std::vector<uint8_t>> sterncpp(MLDProblem &, sternc_opts &);
 
-void sterncpp_main(MLDProblem &mld_problem, sternc_opts &opts,
-                   size_t block_size);
+std::optional<std::vector<uint8_t>> sterncpp_main(MLDProblem &mld_problem, sternc_opts &opts);
 
-bool sterncpp_adjust_opts(sternc_opts &opts, size_t &block_size);
+sternc_opts sterncpp_adjust_opts(const sternc_opts &opts);
 #endif // STERN_STERN_H

@@ -122,7 +122,7 @@ public:
   BitVecSlice(T *data, size_t n, size_t block_begin, size_t block_end)
       : data(data), n(n), begin(block_begin), end(block_end) {}
   static const int16_t bits_per_block = BitVecNums<T>::bits_per_block;
-  bool operator()(uint64_t i) {
+  bool operator()(uint64_t i) const {
     /// Retrieve the value of bit i in the view.
 
 #ifndef NDEBUG
@@ -180,6 +180,13 @@ public:
 
   [[nodiscard]] const T *data_ptr() const { return &data[begin]; }
 
+  [[nodiscard]] std::vector<uint8_t> as_vec() const{
+    std::vector<uint8_t> v(n);
+    for(uint64_t i = 0; i < n; ++i){
+      v[i] = ((*this)(i)?1:0);
+    }
+    return v;
+  }
 private:
   T *data;
   size_t n;
@@ -192,6 +199,7 @@ template <typename T> class BitVec {
   /// The constructor initializes the entire data array to 0.
 public:
   BitVec(const BitVec &other) : BitVec(other.n) { *this = other; };
+  BitVec(const BitVecSlice<T> &other) : BitVec(other.n) { *this = other; };
   BitVec &operator=(const BitVec<T> &other) {
 #ifndef NDEBUG
     if (n != other.n) {
@@ -271,6 +279,7 @@ public:
   [[nodiscard]] BitVecSlice<uint8_t> as_u8_slice() const {
     return {(uint8_t *)data, n, 0, sizeof(T) * nblocks};
   }
+  
   BitVecSlice<T> slice(int64_t begin = -1, int64_t size = -1) {
     if (begin < 0) {
       begin = 0;
