@@ -86,7 +86,8 @@ jobs:
         run: echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${{ steps.install-boost.outputs.BOOST_ROOT }}/lib" >> $GITHUB_ENV
       - name: Install and Test Python CLI
         run: |
-          pip install -U . --verbose
+          export BOOST_ROOT=${{steps.install-boost.outputs.BOOST_ROOT}}
+          pip install -U . --verbose 
           pysa-stern ${{github.workspace}}/tests/test_n120_t8_k64_mld.txt --max-iters 5000
       - name: Configure CMake
         run: >
