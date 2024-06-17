@@ -14,7 +14,7 @@
 # specific language governing permissions and limitations under the License.
 
 cmake_minimum_required(VERSION 3.20)
-
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 add_subdirectory(stern_fort)
 
 find_package(Boost 1.46.0
