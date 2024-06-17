@@ -19,6 +19,7 @@ specific language governing permissions and limitations under the License.
 #define STERN_STERN_H
 #include "libmld/mld.h"
 #include <cstdint>
+#include <optional>
 
 struct sternc_opts {
   /// (F) Problem defines a parity check matrix if true. Otherwise it defines
@@ -61,10 +62,9 @@ struct sternc_opts {
 };
 
 template <typename stern_uint_t = uint32_t>
-void sterncpp(MLDProblem &, sternc_opts &);
+std::optional<std::vector<uint8_t>> sterncpp(MLDProblem &, sternc_opts &);
 
-void sterncpp_main(MLDProblem &mld_problem, sternc_opts &opts,
-                   size_t block_size);
+std::optional<std::vector<uint8_t>> sterncpp_main(MLDProblem &mld_problem, sternc_opts &opts);
 
-bool sterncpp_adjust_opts(sternc_opts &opts, size_t &block_size);
+std::optional<sternc_opts> sterncpp_adjust_opts(const sternc_opts &opts);
 #endif // STERN_STERN_H

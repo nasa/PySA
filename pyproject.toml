@@ -1,0 +1,34 @@
+[build-system]
+requires = [
+    "setuptools>=42",
+    "wheel",
+    "cmake>=3.20",
+    "cmake_build_extension",
+    "pybind11",
+    "ninja"
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pysa-stern"
+authors =[ { name="Humberto Munoz Bauza", email="Humberto.MunozBauza@nasa.gov" }]
+description = "Stern algorithm solver for the PySA suite"
+version = "0.0.1"
+readme = {file = "README.md", content-type="text/markdown"}
+keywords =[ "Stern", "Linear Codes", "McEliece", "Cryptography"]
+classifiers =[
+    "Programming Language :: Python :: 3",
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Programming Language :: Python :: 3 :: Only",
+    "Operating System :: Unix",
+    "Operating System :: MacOS"
+]
+
+[project.scripts]
+pysa-stern = "pysa_stern.pysa_stern:PySA_Stern_main"
+

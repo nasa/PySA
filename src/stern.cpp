@@ -32,7 +32,7 @@ specific language governing permissions and limitations under the License.
 
 template <typename stern_uint_t, typename sub_block_t = void,
           bool testhw1 = false>
-void sterncpp(MLDProblem &mld_problem, sternc_opts &opts) {
+std::optional<std::vector<uint8_t>> sterncpp(MLDProblem &mld_problem, sternc_opts &opts) {
   int master_rank = 0;
   int rank;
   int64_t complt[3] = {0, -1, -1};
@@ -219,137 +219,125 @@ void sterncpp(MLDProblem &mld_problem, sternc_opts &opts) {
       std::cout << "Error vector = " << stern_solution.as_u8_slice();
     }
   }
+  if (complt[2] > 0) {
+    return stern_solution.as_slice().as_vec();
+  } else {
+    return {};
+  }
 }
 
 template <bool testhw1>
-void sterncpp_switch(MLDProblem &mld_problem, sternc_opts &opts,
+std::optional<std::vector<uint8_t>> sterncpp_switch(MLDProblem &mld_problem, sternc_opts &opts,
                      size_t block_size) {
   // sorry
   switch (block_size) {
   case 8: // uint8_t
     switch (opts.l) {
     case 8:
-      sterncpp<uint8_t, uint8_t, testhw1>(mld_problem, opts);
-      break;
+      return sterncpp<uint8_t, uint8_t, testhw1>(mld_problem, opts);
     default:
-      sterncpp<uint8_t, void>(mld_problem, opts);
+      return sterncpp<uint8_t, void>(mld_problem, opts);
     }
-    break;
   case 16: // uint16_t
     switch (opts.l) {
     case 16:
-      sterncpp<uint16_t, uint16_t, testhw1>(mld_problem, opts);
-      break;
+      return sterncpp<uint16_t, uint16_t, testhw1>(mld_problem, opts);
     case 8:
-      sterncpp<uint16_t, uint8_t, testhw1>(mld_problem, opts);
-      break;
+      return sterncpp<uint16_t, uint8_t, testhw1>(mld_problem, opts);
     default:
-      sterncpp<uint16_t, void>(mld_problem, opts);
+      return sterncpp<uint16_t, void>(mld_problem, opts);
     }
-    break;
   case 32: // uint32_t
     switch (opts.l) {
     case 32:
-      sterncpp<uint32_t, uint32_t, testhw1>(mld_problem, opts);
-      break;
+      return sterncpp<uint32_t, uint32_t, testhw1>(mld_problem, opts);
     case 16:
-      sterncpp<uint32_t, uint16_t, testhw1>(mld_problem, opts);
-      break;
+      return sterncpp<uint32_t, uint16_t, testhw1>(mld_problem, opts);
     case 8:
-      sterncpp<uint32_t, uint8_t, testhw1>(mld_problem, opts);
-      break;
+      return sterncpp<uint32_t, uint8_t, testhw1>(mld_problem, opts);
     default:
-      sterncpp<uint32_t, void>(mld_problem, opts);
+      return sterncpp<uint32_t, void>(mld_problem, opts);
     }
     break;
 #if defined(USE_SIMDE)
   case 128: // simd 128
     switch (opts.l) {
     case 64:
-      sterncpp<simde__m128i, uint64_t, testhw1>(mld_problem, opts);
-      break;
+      return sterncpp<simde__m128i, uint64_t, testhw1>(mld_problem, opts);
     case 32:
-      sterncpp<simde__m128i, uint32_t, testhw1>(mld_problem, opts);
-      break;
+      return sterncpp<simde__m128i, uint32_t, testhw1>(mld_problem, opts);
     case 16:
-      sterncpp<simde__m128i, uint16_t, testhw1>(mld_problem, opts);
-      break;
+      return sterncpp<simde__m128i, uint16_t, testhw1>(mld_problem, opts);
     case 8:
-      sterncpp<simde__m128i, uint8_t, testhw1>(mld_problem, opts);
-      break;
+      return sterncpp<simde__m128i, uint8_t, testhw1>(mld_problem, opts);
     default:
-      sterncpp<simde__m128i, void>(mld_problem, opts);
+      return sterncpp<simde__m128i, void>(mld_problem, opts);
     }
-    break;
 #endif
   case 64: // uint64_t
   default:
     switch (opts.l) {
     case 64:
-      sterncpp<uint64_t, uint64_t, testhw1>(mld_problem, opts);
-      break;
+      return sterncpp<uint64_t, uint64_t, testhw1>(mld_problem, opts);
     case 32:
-      sterncpp<uint64_t, uint32_t, testhw1>(mld_problem, opts);
-      break;
+      return sterncpp<uint64_t, uint32_t, testhw1>(mld_problem, opts);
     case 16:
-      sterncpp<uint64_t, uint16_t, testhw1>(mld_problem, opts);
-      break;
+      return sterncpp<uint64_t, uint16_t, testhw1>(mld_problem, opts);
     case 8:
-      sterncpp<uint64_t, uint8_t, testhw1>(mld_problem, opts);
-      break;
+      return sterncpp<uint64_t, uint8_t, testhw1>(mld_problem, opts);
     default:
-      sterncpp<uint64_t, void>(mld_problem, opts);
+      return sterncpp<uint64_t, void>(mld_problem, opts);
     }
   }
 }
 
-void sterncpp_main(MLDProblem &mld_problem, sternc_opts &opts,
-                   size_t block_size) {
+std::optional<std::vector<uint8_t>> sterncpp_main(MLDProblem &mld_problem, sternc_opts &opts) {
   if (opts.test_hw1) {
-    sterncpp_switch<true>(mld_problem, opts, block_size);
+    return sterncpp_switch<true>(mld_problem, opts, opts.block_size);
   } else {
-    sterncpp_switch<false>(mld_problem, opts, block_size);
+    return sterncpp_switch<false>(mld_problem, opts, opts.block_size);
   }
 }
 
-bool sterncpp_adjust_opts(sternc_opts &opts, size_t &block_size) {
+std::optional<sternc_opts> sterncpp_adjust_opts(const sternc_opts &opts) {
+  sternc_opts new_opts(opts);
   int mpi_rank = 0;
 #ifdef USEMPI
   MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
 #endif
   if (opts.l <= 0) {
-    opts.l = 0;
+    new_opts.l = 0;
   } else if (opts.l <= 8) {
-    opts.l = 8;
+    new_opts.l = 8;
   } else if (opts.l <= 16) {
-    opts.l = 16;
+    new_opts.l = 16;
   } else if (opts.l <= 32) {
-    opts.l = 32;
+    new_opts.l = 32;
   } else {
     if (mpi_rank == 0)
       std::cout << "Option -l " << opts.l << " not supported.\n";
-    return false;
+    return {};
   }
   if (opts.m <= 0) {
-    opts.m = 0;
+    new_opts.m = 0;
   } else if (opts.m <= 1) {
-    opts.m = 1;
+    new_opts.m = 1;
   } else if (opts.m <= 2) {
-    opts.m = 2;
+    new_opts.m = 2;
   } else if (opts.m <= 4) {
-    opts.m = 4;
+    new_opts.m = 4;
   } else if (opts.m <= 8) {
-    opts.m = 8;
+    new_opts.m = 8;
   } else if (opts.m <= 16) {
-    opts.m = 16;
+    new_opts.m = 16;
   } else if (opts.m <= 32) {
-    opts.m = 32;
+    new_opts.m = 32;
   } else {
     if (mpi_rank == 0)
       std::cout << "Option -m " << opts.m << " not supported.\n";
-    return false;
+    return {};
   }
-
+  size_t block_size;
   if (opts.m > 0 &&
       opts.l > 0) { // determine block size from passed -l and -m options
     block_size = (opts.l) * opts.m;
@@ -362,7 +350,7 @@ bool sterncpp_adjust_opts(sternc_opts &opts, size_t &block_size) {
       if (mpi_rank == 0)
         std::cout << "-l and -m combination not supported.\n";
 #endif
-      return false;
+      return {};
     }
     if (mpi_rank == 0)
       std::cout << "Set block size " << block_size << "\n";
@@ -386,7 +374,7 @@ bool sterncpp_adjust_opts(sternc_opts &opts, size_t &block_size) {
       if (mpi_rank == 0)
         std::cout << "Option --block-size " << opts.block_size
                   << " not valid.\n";
-      return false;
+      return {};
     }
   } else { // use number of clauses (rows) to determine block size
     if (opts.nclauses <= 8) {
@@ -407,6 +395,7 @@ bool sterncpp_adjust_opts(sternc_opts &opts, size_t &block_size) {
       block_size = 64;
     }
 #endif
+    new_opts.block_size = block_size;
   }
-  return true;
+  return new_opts;
 }

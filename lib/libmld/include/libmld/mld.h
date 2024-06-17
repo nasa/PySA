@@ -41,7 +41,8 @@ class MLDProblem {
 public:
   MLDProblem() = default;
   MLDProblem(const MLDProblem &) = default;
-  void read_problem(std::istream &input_stream);
+  int read_problem(std::istream &input_stream);
+  int read_problem_string(char* problem_string);
   [[nodiscard]] MLDType problem_type() const { return prob_type; }
   [[nodiscard]] size_t NVars() const { return nvars; }
   [[nodiscard]] size_t NClauses() const { return nrows; }
