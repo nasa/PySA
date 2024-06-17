@@ -35,14 +35,18 @@ jobs:
             simde: ON
             usempi: ON
             mpi: openmpi
+            python: 3.8
             os_version: 22.04
             compiler: gcc
             cpp_compiler: g++
-          - os: ubuntu-22.04
-            build_type: Release
-            usempi: OFF
+          - build_type: Release
+            os: ubuntu-22.04
             simde: OFF
+            usempi: OFF
             python: 3.12
+            os_version: 22.04
+            compiler: gcc
+            cpp_compiler: g++
 #          - build_type: Release
 #            os: macos-13
 #            simde: ON
