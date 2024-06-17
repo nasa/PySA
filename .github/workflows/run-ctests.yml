@@ -17,6 +17,7 @@ jobs:
         simde: [ON, OFF]
         usempi: [OFF]
         mpi: [no-mpi]
+        python: [3.8]
         include:
           - os: ubuntu-22.04
             os_version: 22.04
@@ -37,6 +38,11 @@ jobs:
             os_version: 22.04
             compiler: gcc
             cpp_compiler: g++
+          - os: ubuntu-22.04
+            build_type: Release
+            usempi: OFF
+            simde: OFF
+            python: 3.12
 #          - build_type: Release
 #            os: macos-13
 #            simde: ON
@@ -50,10 +56,10 @@ jobs:
         uses: actions/checkout@v3
         with:
           submodules: 'true'
-      - name: Set up Python 3.12
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: 3.12
+          python-version: ${{ matrix.python }}
       - name: Install Python dependencies
         run: |
           python -m pip install --upgrade pip setuptools wheel
