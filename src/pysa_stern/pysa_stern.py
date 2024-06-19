@@ -10,16 +10,13 @@ try:
     # Check that mpi4py is installed
     from mpi4py import MPI
     comm = MPI.COMM_WORLD
+    rank = comm.Get_rank()
 except:
     comm = None
     rank = 0
 
 
 def PySA_Stern_main():
-    if comm is not None:
-        if not MPI.Is_initialized():
-            MPI.Init()
-        rank = comm.Get_rank()
     adjusted_opts = None
     
     parser = argparse.ArgumentParser("PySA-Stern")

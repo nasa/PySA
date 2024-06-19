@@ -34,5 +34,5 @@ setuptools.setup(
         ),
     ],
     cmdclass=dict(build_ext=BuildExtension),
-    requires=["numpy"] + mpi_req
+    install_requires=["numpy"] + mpi_req
 )
