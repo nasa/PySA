@@ -83,15 +83,18 @@ def PySA_Stern_main():
         exit(1)
     # Read in the MLD problem
     problem = MLDProblem()
+    
     problem_ok = np.asarray([1])
     if rank == 0:
         try:
             with open(args.input, 'r') as f:
-                problem.read_problem(f)
+                problem_string = f.read()
         except Exception as e:
             problem_ok[0] = 0
             print(f"Problem reading MLD file ({args.input}).", file=sys.stderr)
             print(e, file=sys.stderr)
+    else:
+        problem_string = None
     if comm is not None:
         comm.Bcast(problem_ok, root=0)
     if not problem_ok[0]:
@@ -99,8 +102,16 @@ def PySA_Stern_main():
             MPI.Finalize()
         exit(1)
     if comm is not None:
-        comm.bcast(problem, root=0)
-    
+        problem_string = comm.bcast(problem_string, root=0)
+    try:
+        problem = MLDProblem()
+        problem.read_problem_str(problem_string)
+    except Exception as e:
+        problem_ok[0] = 0
+        if rank==0:
+            print(f"Problem with MLD file ({args.input}).", file=sys.stderr)
+            print(e, file=sys.stderr)
+        exit(1)
     # Call the Stern algorithm solver 
     sol_arr = pysa_sternx(problem, adjusted_opts)
 
@@ -116,8 +127,8 @@ def PySA_Stern_main():
             print()
         else:
             print(f"[PySA-Stern] Solution not found.")
-    if comm is not None:
-        MPI.Finalize()
+    # if comm is not None:
+    #     MPI.Finalize()
 
 if __name__ == "__main__":
     PySA_Stern_main()

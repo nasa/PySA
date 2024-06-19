@@ -24,7 +24,7 @@ specific language governing permissions and limitations under the License.
 #define MEMBER2PYDICT(_D,_CL,_M) _D[#_M] = _CL._M;
 
 #define PYDICT2MEMBER(_D,_CL,_M) _CL._M = _D[#_M].cast<decltype(_CL._M)>();
-
+#define PYTUP2MEMBER(_T,_I,_CL,_M) _CL._M = _T[_I].cast<decltype(_CL._M)>();
 namespace py = pybind11;
 
 // Wrapper class to make solution accessible as a numpy array
@@ -80,25 +80,25 @@ void init_mld_h(py::module& m){
           .def("read_problem_str", &MLDProblem::read_problem_string)
           .def(py::pickle(
             [](const MLDProblem& mldp){
-              py::dict d;
-              MEMBER2PYDICT(d, mldp, prob_type);
-              MEMBER2PYDICT(d, mldp, nvars);
-              MEMBER2PYDICT(d, mldp, nrows);
-              MEMBER2PYDICT(d, mldp, yarr);
-              MEMBER2PYDICT(d, mldp, clauses);
-              MEMBER2PYDICT(d, mldp, y);
-              MEMBER2PYDICT(d, mldp, w);
-              return d;
+              return py::make_tuple(
+                mldp.prob_type, 
+                mldp.nvars, 
+                mldp.nrows, 
+                mldp.yarr, 
+                mldp.clauses, 
+                mldp.y, 
+                mldp.w
+              );
             },
-            [](py::dict d){
+            [](py::tuple t){
               MLDProblem mldp;
-              PYDICT2MEMBER(d, mldp, prob_type);
-              PYDICT2MEMBER(d, mldp, nvars);
-              PYDICT2MEMBER(d, mldp, nrows);
-              PYDICT2MEMBER(d, mldp, yarr);
-              PYDICT2MEMBER(d, mldp, clauses);
-              PYDICT2MEMBER(d, mldp, y);
-              PYDICT2MEMBER(d, mldp, w);
+              PYTUP2MEMBER(t, 0, mldp, prob_type);
+              PYTUP2MEMBER(t, 1, mldp, nvars);
+              PYTUP2MEMBER(t, 2, mldp, nrows);
+              PYTUP2MEMBER(t, 3, mldp, yarr);
+              PYTUP2MEMBER(t, 4, mldp, clauses);
+              PYTUP2MEMBER(t, 5, mldp, y);
+              PYTUP2MEMBER(t, 6, mldp, w);
               return mldp;
             }
           ))
