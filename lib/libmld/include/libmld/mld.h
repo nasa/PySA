@@ -37,8 +37,7 @@ public:
 
 enum MLDType { G, H, P, W };
 
-class MLDProblem {
-public:
+struct MLDProblem {
   MLDProblem() = default;
   MLDProblem(const MLDProblem &) = default;
   template<typename IS_t>
@@ -109,7 +108,6 @@ public:
     return yv;
   }
 
-private:
   MLDType prob_type{MLDType::G};
   size_t nvars = 0;
   size_t nrows = 0;

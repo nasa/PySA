@@ -41,11 +41,15 @@ endif ()
 target_compile_options(sternx PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:-Wall;-Wpedantic>")
 target_compile_options(mldpt PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:-Wall;-Wpedantic>")
 
-## Set include directories
+## Set include directories and compile definitions
 if(USE_SIMDE)
     include_directories(../lib/libmld/lib/simde/)
     add_compile_definitions(USE_SIMDE)
 endif ()
+if(MPI)
+    target_compile_definitions(sterncpp PUBLIC USEMPI)
+    target_compile_definitions(sternx PUBLIC USEMPI)
+endif()
 
 target_include_directories(sterncpp PUBLIC ../lib/libmld/include
         ../lib/simde

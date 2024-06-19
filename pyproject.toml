@@ -29,6 +29,7 @@ classifiers =[
     "Operating System :: Unix",
     "Operating System :: MacOS"
 ]
+dynamic = ["dependencies"]
 
 [project.scripts]
 pysa-stern = "pysa_stern.pysa_stern:PySA_Stern_main"
