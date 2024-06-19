@@ -23,6 +23,10 @@ find_package(pybind11 REQUIRED)
 
 # Build the Python extension bindings module
 pybind11_add_module(pysa_stern_ext pysa_stern.cpp)
+if(MPI)
+    target_compile_definitions(pysa_stern_ext PUBLIC USEMPI)
+endif()
+
 target_include_directories(pysa_stern_ext PRIVATE ../../include/)
 target_include_directories(pysa_stern_ext PRIVATE ../../lib/libmld/include)
 target_link_libraries(pysa_stern_ext PUBLIC sterncpp)
