@@ -38,7 +38,7 @@ with open(os.path.join(here, 'requirements.txt'), encoding='utf-8') as f:
 
 setup(name='McEliece',
       version=version,
-      packages=find_packages(include="mceliece"),
+      packages=find_packages(include=["mceliece"]),
       python_requires='>=3.8',
       install_requires=install_requires,
       extras_require={'dev': ['pytest']},
