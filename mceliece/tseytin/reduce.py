@@ -1,4 +1,3 @@
-#!/bin/env python
 # Author: Humberto Munoz Bauza (humberto.munozbauza@nasa.gov)
 #
 # Copyright © 2023, United States Government, as represented by the Administrator
@@ -14,7 +13,20 @@
 # CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-from mceliece.genmci import genmci_main
+import numpy as np
+from mceliece.tseytin.bindings import into_3sat_only, add_weight_constraints, xorsat_from_numpy_arrays
 
-if __name__ == "__main__":
-    genmci_main()
+def reduce_mld_to_sat(G: np.ndarray, y: np.ndarray, t: int, as_3sat_only=False):
+    """
+    Generate a DIMACS string for the reduced MLD problem as either a 3-SAT + XORSAT problem
+    or as a pure 3-SAT problem.
+    The Tseytin reduction is used to enforce the Hamming weight t constraint on the error string
+    as an accumulation circuit, which is then reduced to 3-SAT clauses.
+    """
+    xs = xorsat_from_numpy_arrays(G, y)
+    n = xs.nvars()
+    if as_3sat_only:
+        into_3sat_only(xs)
+    add_weight_constraints(t, xs, n)
+    dimacs_str = xs.as_dimacs_str()
+    return dimacs_str

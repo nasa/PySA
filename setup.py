@@ -15,6 +15,10 @@
 
 from setuptools import setup, find_packages
 import os
+from pathlib import Path
+import sys
+
+from cmake_build_extension import CMakeExtension, BuildExtension
 
 # Set version
 version = '0.0.1'
@@ -34,8 +38,22 @@ with open(os.path.join(here, 'requirements.txt'), encoding='utf-8') as f:
 
 setup(name='McEliece',
       version=version,
-      packages=find_packages(),
+      packages=find_packages(include="mceliece"),
       python_requires='>=3.8',
       install_requires=install_requires,
       extras_require={'dev': ['pytest']},
-      scripts=['bin/genmci'])
+      ext_modules=[
+        CMakeExtension(
+            name="mceliece-tseytin",
+            install_prefix="mceliece/tseytin",
+            cmake_depends_on=["pybind11"],
+            source_dir=str(Path(__file__).parent.absolute()/"mceliece"/"tseytin"),
+            cmake_configure_options=[
+                "-DCMAKE_BUILD_TYPE=Release",
+                f"-DPython_ROOT_DIR={Path(sys.prefix)}"
+            ],
+            cmake_component="bindings",
+        ),
+    ],
+    cmdclass=dict(build_ext=BuildExtension)
+)

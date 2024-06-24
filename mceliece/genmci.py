@@ -14,6 +14,7 @@
 # CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
+import fire
 import numpy as np
 from tqdm.auto import tqdm
 from pathlib import Path
@@ -25,6 +26,7 @@ from mceliece.goppa import generate_random_goppa
 from mceliece.lincodes import dual_code
 from mceliece.randutil import random_weight_t
 from mceliece.reduction import to_xorsat, CNFXorSat
+from mceliece.tseytin.reduce import reduce_mld_to_sat
 
 
 def genmci(n: int,
@@ -99,8 +101,9 @@ def genmci(n: int,
             for filename in [
                     pub_dir / (inst_file + "_mld.txt"),
                     pub_dir / (inst_file + "_pcd.txt"),
-                    pub_dir / (inst_file + "_pcd.txt"),
                     pub_dir / (inst_file + "_xor.cnf"),
+                    pub_dir / (inst_file + "_3sat.cnf"),
+                    pub_dir / (inst_file + "_xor_3sat.cnf"),
                     pub_dir / (inst_file + "_p3.txt"),
                     priv_dir / (inst_file + "_plain.txt"),
                     priv_dir / (inst_file + "_errs.txt")
@@ -191,6 +194,15 @@ def genmci(n: int,
                 for i in l:
                     f.write(f"{i} ")
                 f.write("0\n")
+        if nieder:
+            # write out mixed XORSat-3SAT problem
+            xs_dimacs = reduce_mld_to_sat(G, y[0], t)
+            with open(pub_dir / (inst_file + "_xor_3sat.cnf"), 'w') as f:
+                f.write(xs_dimacs)
+            # write out pure 3SAT problem
+            sat_dimacs = reduce_mld_to_sat(G, y[0], t, as_3sat_only=True)
+            with open(pub_dir / (inst_file + "_3sat.cnf"), 'w') as f:
+                f.write(sat_dimacs)
         if not nieder:
             cnf = CNFXorSat(goppa_code.k, xsform, y[0])
             p3isn = cnf.to_p3_xorsat()
@@ -202,3 +214,7 @@ def genmci(n: int,
                     f.write(f"{i} {j} {K}\n")
                 for (i, j, k, K) in p3isn.cub:
                     f.write(f"{i} {j} {k} {K}\n")
+
+
+def genmci_main():
+    fire.Fire(genmci)
