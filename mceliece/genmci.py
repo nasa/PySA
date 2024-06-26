@@ -185,6 +185,14 @@ def genmci(n: int,
                     for i in l:
                         f.write(f"{i} ")
                     f.write("\n")
+             # write out mixed XORSat-3SAT problem
+            xs_dimacs = reduce_mld_to_sat(Hdual, ydual[0], t)
+            with open(pub_dir / (inst_file + "_xor_3sat.cnf"), 'w') as f:
+                f.write(xs_dimacs)
+            # write out pure 3SAT problem
+            sat_dimacs = reduce_mld_to_sat(Hdual, ydual[0], t, as_3sat_only=True)
+            with open(pub_dir / (inst_file + "_3sat.cnf"), 'w') as f:
+                f.write(sat_dimacs)
         with open(pub_dir / (inst_file + "_xor.cnf"), 'w') as f:
             f.write(f"p cnf {n} {len(xsform)}\n")
             for l, yi in zip(xsform, y[0]):
