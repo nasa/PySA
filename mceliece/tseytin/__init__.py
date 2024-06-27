@@ -1,4 +1,3 @@
-#!/bin/env python
 # Author: Humberto Munoz Bauza (humberto.munozbauza@nasa.gov)
 #
 # Copyright © 2023, United States Government, as represented by the Administrator
@@ -13,8 +12,3 @@
 # under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
 # CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
-
-from mceliece.genmci import genmci_main
-
-if __name__ == "__main__":
-    genmci_main()

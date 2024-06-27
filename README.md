@@ -3,16 +3,16 @@
 **Disclaimer**: This package is for research and testing purposes only. 
 It is not to be used for encrypting sensitive data.
 
-The Python application `genmci` generates random McEliece and Niederreider problem 
+The Python application `pysa-genmci` generates random McEliece and Niederreider problem 
 instances with Goppa codes, consisting of a public key binary matrix and a ciphertext binary vector.
 The problem instances can be generated for any code size `n` and minimum error correction distance `t`.
 
 ```
 NAME
-    genmci - Generates McEliece Cryptographic Instances (MCI).
+    pysa-genmci - Generates McEliece Cryptographic Instances (MCI).
 
 SYNOPSIS
-    genmci N T NUM_INST PUB_DIR PRIV_DIR <flags>
+    pysa-genmci N T NUM_INST PUB_DIR PRIV_DIR <flags>
 
 DESCRIPTION
     Generates McEliece Cryptographic Instances (MCI).

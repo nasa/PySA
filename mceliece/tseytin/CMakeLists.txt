@@ -1,4 +1,3 @@
-#!/bin/env python
 # Author: Humberto Munoz Bauza (humberto.munozbauza@nasa.gov)
 #
 # Copyright © 2023, United States Government, as represented by the Administrator
@@ -14,7 +13,26 @@
 # CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-from mceliece.genmci import genmci_main
+cmake_minimum_required(VERSION 3.26)
 
-if __name__ == "__main__":
-    genmci_main()
+project(mceliece_tseytin)
+set(CMAKE_CXX_STANDARD 20)
+
+# Use FindPython or FindPython3 module
+find_package(Python 3.8 REQUIRED COMPONENTS Interpreter Development)
+
+# Check for pybind11
+find_package(pybind11 REQUIRED)
+
+# Build the Python extension bindings module
+pybind11_add_module(tseytin_ext tseytin.cpp)
+# make sure object name matches the defined module name
+set_target_properties(tseytin_ext PROPERTIES
+        LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/tseytin
+        OUTPUT_NAME "bindings")
+# Installs only the Python extension object when the "bindings" component is specified in setup.py
+install(
+        TARGETS tseytin_ext 
+        DESTINATION ${CMAKE_INSTALL_PREFIX}
+        COMPONENT bindings
+)
