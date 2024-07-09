@@ -18,4 +18,4 @@ jobs:
 
     - name: Run docker image
       run: |
-        docker run -ti --rm -v ${PWD}:/pysa:ro pysa /pysa/tests/mnci_n64_t3_0_mld.txt --sterncpp --max_iters 1000
+        docker run -ti --rm -v ${PWD}:/pysa-stern:ro pysa-stern /pysa-stern/tests/mnci_n64_t3_0_mld.txt --sterncpp --max_iters 1000
