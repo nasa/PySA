@@ -1,0 +1,21 @@
+name: Check Dockerfile
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Build Docker image
+      run: docker build . -t pysa-stern
+
+    - name: Run docker image
+      run: |
+        docker run -ti --rm -v ${PWD}:/pysa:ro pysa /pysa/tests/mnci_n64_t3_0_mld.txt --sterncpp --max_iters 1000
