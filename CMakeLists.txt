@@ -51,3 +51,7 @@ add_subdirectory(src)
 
 ## Add tests
 add_subdirectory(./tests)
+
+# Install exec
+install(TARGETS sternx DESTINATION bin)
+install(TARGETS mldpt DESTINATION bin)
