@@ -2,9 +2,9 @@ name: Check Dockerfile
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "pysa-stern" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "pysa-stern" ]
 
 jobs:
   build:
