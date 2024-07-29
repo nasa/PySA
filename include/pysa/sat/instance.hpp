@@ -30,7 +30,7 @@ specific language governing permissions and limitations under the License.
 
 namespace pysa::dpll::sat {
 
-auto GetRandomInstance(const std::size_t k, const std::size_t n,
+inline auto GetRandomInstance(const std::size_t k, const std::size_t n,
                        const std::size_t m,
                        const std::optional<std::size_t> seed = std::nullopt) {
   /*
