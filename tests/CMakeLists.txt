@@ -19,8 +19,5 @@ cmake_minimum_required(VERSION 3.5)
 # Add executable to compile
 add_executable(test_walk_sat.x test_walk_sat.cpp)
 target_include_directories(test_walk_sat.x PUBLIC ../include)
-target_include_directories(test_walk_sat.x PUBLIC ../lib/PySA-dpll/include)
-ExternalProject_Get_Property(pysa-branching install_dir)
-target_include_directories(test_walk_sat.x PUBLIC ${install_dir}/src/pysa-branching/include)
 
 add_test(NAME test_walk_sat COMMAND test_walk_sat.x)

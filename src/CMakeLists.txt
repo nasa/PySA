@@ -22,9 +22,9 @@ project(pysa-walksat-main LANGUAGES CXX)
 
 # add includes
 include_directories(../include)
-include_directories(../lib/PySA-dpll/include)
-ExternalProject_Get_Property(pysa-branching install_dir)
-include_directories(${install_dir}/src/pysa-branching/include)
+
+add_library(walk-sat walk-sat.cpp)
 
 # Add executable to compile
-add_executable(walk-sat.x walk-sat.cpp)
+add_executable(walk-sat.x main.cpp)
+target_link_libraries(walk-sat.x walk-sat )

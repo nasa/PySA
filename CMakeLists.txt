@@ -61,7 +61,6 @@ endif()
 
 
 # Add executable, tests, and examples
-add_subdirectory(lib/PySA-dpll)
 add_subdirectory(src)
 add_subdirectory(tests)
 #add_subdirectory(examples)

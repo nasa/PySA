@@ -17,6 +17,7 @@ specific language governing permissions and limitations under the License.
 
 #include "pysa/sat/walksat.hpp"
 #include <chrono>
+#include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -24,81 +25,20 @@ specific language governing permissions and limitations under the License.
 #include <unordered_map>
 #include <vector>
 
-struct bitvector_hash {
-  size_t operator()(const std::vector<uint8_t> &vec) const {
-    std::size_t seed = vec.size();
-    for (auto x : vec) {
-      x = x * 0x3b;
-      seed ^= x + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    }
-    return seed;
-  }
-};
-
-std::string bitvector_string(const std::vector<uint8_t> &vec) {
-  std::string str(vec.size(), '0');
-  for (std::size_t i = 0; i < vec.size(); ++i) {
-    if (vec[i] > 0) {
-      str[i] = '1';
-    }
-  }
-  return str;
-}
 
 using namespace std::chrono_literals;
-int main(int argc, char *argv[]) {
-  // Print the required arguments
-  if (argc < 2 || argc > 7) {
-    std::cerr << "Usage: " << std::filesystem::path(argv[0]).filename().string()
-              << " cnf_file max_steps [p = 0.5] [unsat = 0] [seed = 0] "
-                 "[cutoff_time = 0]\n";
-    std::cerr
-        << "Find solutions to a SAT formula in CNF format using WalkSAT.\n\n";
-    std::cerr << "   max_steps    Maximum number of steps for each restart.\n";
-    std::cerr << "   p            WalkSAT probability of a walk move. (default "
-                 "= 0.5)\n";
-    std::cerr << "   unsat        Maximum number of unsatisfied clauses to "
-                 "target (default = 0)\n";
-    std::cerr << "   seed         Random seed (default = seed from entropy)\n";
-    std::cerr << "   cutoff_time  The cutoff benchmarking time in seconds "
-                 "(default = exit on first solution)";
-    std::cerr << std::endl;
-    return EXIT_FAILURE;
-  }
-  auto it0_ = std::chrono::high_resolution_clock::now();
-  // Set filename for cnf formula
-  std::string cnf_file{argv[1]};
-  // Set default value for maximum number of unsatisfied clauses
-  std::size_t max_steps = 100;
-  unsigned long max_unsat = 0;
-  // Set default value for number of threads (0 = implementation specific)
-  float p = 0.5;
-  // Default random seed
-  std::uint64_t seed = 0;
-  // Set default value for verbosity
-  double bencht = 0.0;
 
-  // Assign provided values
-  switch (argc) {
-  case 7:
-    bencht = std::stod(argv[6]);
-  case 6:
-    seed = std::stoull(argv[5]);
-  case 5:
-    max_unsat = std::stoul(argv[4]);
-  case 4:
-    p = std::stof(argv[3]);
-  case 3:
-    max_steps = std::stoull(argv[2]);
-  default:;
-  }
-  // Read formula
-  const auto formula = [&cnf_file]() {
-    if (auto ifs = std::ifstream(cnf_file); ifs.good())
-      return pysa::dpll::sat::ReadCNF(ifs);
-    else
-      throw std::runtime_error("Cannot open file: '" + cnf_file + "'");
-  }();
+typedef std::vector<std::tuple<std::string, size_t, unsigned>> walksat_result_t;
+
+namespace pysa::sat{
+walksat_result_t walksat_optimize_bench(
+    const Formula_WS& formula, 
+    uint32_t max_steps,
+    double p, 
+    uint32_t max_unsat, 
+    uint64_t seed, 
+    double bencht)
+  {
 
   // Get initial time
   // std::vector<pysa::dpll::BitSet<>> sols;
@@ -117,7 +57,7 @@ int main(int argc, char *argv[]) {
     //
     wsopt.restart_state();
     size_t nsteps = 0;
-    uint64_t n_unsat = formula.size();
+    uint64_t n_unsat = formula.num_clauses();
     for (; nsteps < max_steps; ++nsteps) {
       n_unsat = wsopt.step();
       if (n_unsat <= max_unsat)
@@ -144,10 +84,6 @@ int main(int argc, char *argv[]) {
            std::chrono::milliseconds(int(bencht * 1000)));
   // Get final time
   auto et_ = std::chrono::high_resolution_clock::now();
-  double init_time_ms =
-      std::chrono::duration_cast<std::chrono::microseconds>(it_ - it0_)
-          .count() /
-      1000.0;
   double duration_ms =
       std::chrono::duration_cast<std::chrono::microseconds>(et_ - it_).count() /
       1000.0;
@@ -168,9 +104,7 @@ int main(int argc, char *argv[]) {
   std::sort(nstep_hist.begin(), nstep_hist.end());
   std::cout << "C Solution count = " << nsols << "\n"
             << "C Unique solutions found = " << sol_map.size() << "\n"
-            << "C Initialization time (ms) = " << init_time_ms << "\n"
             << "C Computation time (ms) = " << duration_ms << "\n"
-            << "C Total time (ms) = " << init_time_ms + duration_ms << "\n"
             << "C Number of restarts = " << nits << "\n"
             << "C Total inner steps = " << total_nsteps << "\n"
             << "C Avg steps to solution = " << double(total_nsteps) / nsols
@@ -195,5 +129,6 @@ int main(int argc, char *argv[]) {
   }
   std::cout << std::endl;
 
-  return EXIT_SUCCESS;
+  return sols_vec;
+}
 }
