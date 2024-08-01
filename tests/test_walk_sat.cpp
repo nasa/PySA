@@ -16,8 +16,11 @@ specific language governing permissions and limitations under the License.
 */
 
 #include <iostream>
+#include <optional>
+#include <random>
 #include <unordered_set>
-#include <pysa/sat/walksat.hpp>
+
+#include "pysa/sat/walksat.hpp"
 
 
 
