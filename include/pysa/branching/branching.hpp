@@ -78,7 +78,7 @@ template <typename Function, typename Branches, typename Time,
           template <typename...> typename Vector = std::vector>
 void branching_impl(const Function &fn, Branches &branches,
                     const std::size_t n_threads, const Time &sleep_time,
-                    ConstStopPtr stop) {
+                    StopPtr stop) {
   // Single-threaded version
   if (n_threads == 1) {
 #ifndef NDEBUG
@@ -179,7 +179,7 @@ struct Brancher : ThreadHandle<std::future<void>> {
            Time &&sleep_time)
       : branches(n_threads), _core{[fn, n_threads, sleep_time, this]() {
           return submit(
-              [&fn, &n_threads, &sleep_time, this](ConstStopPtr stop) {
+              [&fn, &n_threads, &sleep_time, this](StopPtr stop) {
                 branching_impl(fn, this->branches, n_threads, sleep_time, stop);
               });
         }} {

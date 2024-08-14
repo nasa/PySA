@@ -152,7 +152,7 @@ auto submit(Function &&fn, Params &&...params) {
   // Return handle
   return ThreadHandle(
       std::async(std::forward<Function>(fn), std::forward<Params>(params)...,
-                 ConstStopPtr{stop_}),
+                 StopPtr{stop_}),
       std::move(stop_));
 }
 

@@ -62,6 +62,7 @@ struct Branch {
 
 using Branches = std::list<Branch>;
 
+template<bool stop_on_first=false>
 void TestBranching(const std::size_t n, const std::size_t n_threads = 0,
                    const bool verbose = false) {
   // How to collect the branches
@@ -72,11 +73,14 @@ void TestBranching(const std::size_t n, const std::size_t n_threads = 0,
     if (CheckBranch(branch)) {
       const std::scoped_lock<std::mutex> lock_(mutex_);
       collected_.push_back(branch.state);
+      return true;
+    } else {
+      return false;
     }
   };
 
   // Get branches
-  auto brancher_ = DPLL(Branches{Branch{n, 0, 0}}, collect_, n_threads);
+  auto brancher_ = DPLL<true, stop_on_first>(Branches{Branch{n, 0, 0}}, collect_, n_threads);
 
   // Start brancher
   auto it_ = std::chrono::high_resolution_clock::now();
@@ -98,18 +102,20 @@ void TestBranching(const std::size_t n, const std::size_t n_threads = 0,
                      .count()
               << std::endl;
 
-  // Sort collected numbers
-  std::sort(std::begin(collected_), std::end(collected_));
+  if constexpr (!stop_on_first){
+    // Sort collected numbers
+    std::sort(std::begin(collected_), std::end(collected_));
 
-  // Get head
-  auto head_ = std::cbegin(collected_);
+    // Get head
+    auto head_ = std::cbegin(collected_);
 
-  // Check results
-  for (std::size_t i_ = 0, end_ = std::size_t{1} << n; i_ < end_; ++i_)
-    if (CheckBranch(Branch{n, i_, 0})) assert(*head_++ == i_);
+    // Check results
+    for (std::size_t i_ = 0, end_ = std::size_t{1} << n; i_ < end_; ++i_)
+      if (CheckBranch(Branch{n, i_, 0})) assert(*head_++ == i_);
 
-  // All numbers should have been checked at this point
-  assert(head_ == std::cend(collected_));
+    // All numbers should have been checked at this point
+    assert(head_ == std::cend(collected_));
+  }
 }
 
 #ifdef USE_MPI
