@@ -32,7 +32,7 @@ namespace pysa::dpll {
 
 using namespace std::chrono_literals;
 
-template <bool depth_first = true, typename Init, typename Get,
+template <bool depth_first = true, bool stop_on_first = false, typename Init, typename Get,
           typename WallTime = std::nullptr_t,
           typename SleepTime = decltype(1ms)>
 auto DPLL(Init &&init, Get &&get, bool verbose = false,
@@ -55,11 +55,14 @@ auto DPLL(Init &&init, Get &&get, bool verbose = false,
     if (!branch.partial()) {
       const std::scoped_lock<std::mutex> lock_(mutex_);
       collected_.push_back(get(branch));
+      return true;
+    } else {
+      return false;
     }
   };
 
   // Get brancher
-  auto brancher_ = pysa::branching::DPLL<depth_first>(
+  auto brancher_ = pysa::branching::DPLL<depth_first, stop_on_first>(
       branches_type{{root_}}, collect_, n_threads, sleep_time);
 
   // Get initial time

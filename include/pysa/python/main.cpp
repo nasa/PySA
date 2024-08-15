@@ -191,6 +191,9 @@ max_n_unsat: int, optional
   Number of maximum allowed unsatisfied clauses.
 n_threads: int, optional
   Number of threads to use (by default, all cores will be used)
+stop_on_first: bool, optional
+  Stop when the first solution is found. By default, branch until all solutions
+  are found or walltime is reached.
 walltime: float, optional
   Maximum number of seconds to run the optimization.
 verbose: bool, optional
@@ -201,7 +204,9 @@ verbose: bool, optional
       [](const std::vector<std::vector<int32_t>> cnf,
          const std::size_t max_n_unsat,
          const std::optional<std::size_t> n_threads,
-         const std::optional<float> walltime, const bool verbose) {
+         const bool stop_on_first,
+         const std::optional<float> walltime,
+         const bool verbose) {
 #ifdef USE_MPI
         if (walltime)
           throw std::logic_error(
@@ -213,16 +218,17 @@ verbose: bool, optional
 #else
         if (walltime)
           return sat::optimize(
-              cnf, max_n_unsat, verbose, n_threads,
+              cnf, max_n_unsat, verbose, n_threads, stop_on_first,
               std::chrono::milliseconds(
                   static_cast<std::size_t>(walltime.value() * 1e3)));
         else
-          return sat::optimize(cnf, max_n_unsat, verbose, n_threads, nullptr);
+          return sat::optimize(cnf, max_n_unsat, verbose, n_threads, stop_on_first, nullptr);
 #endif
       },
       py::arg("cnf"), py::pos_only(), py::arg("max_n_unsat") = 0, py::kw_only(),
       py::arg("n_threads") = py::none(),
-      py::arg("walltime") = std::numeric_limits<float>::infinity(),
+      py::arg("stop_on_first") = false,
+      py::arg("walltime") = py::none(),
       py::arg("verbose") = false, __doc__);
 }
 

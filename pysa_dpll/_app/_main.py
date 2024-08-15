@@ -45,6 +45,10 @@ def main(
             help=
             "Number of threads to use (by default, all available cores are used)."
         )] = None,
+    stop_on_first: Annotated[
+        bool,
+        Option("--stop-on-first",
+               help="Stop search when the first solution is found.")] = False,
     verbose: Annotated[
         bool, Option("--verbose", "-v", help="Verbose output.")] = False):
     # Update parameters

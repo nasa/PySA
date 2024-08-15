@@ -66,6 +66,7 @@ def sat(max_n_unsat: Annotated[
     collected_, branches_ = optimize(cnf_,
                                      max_n_unsat=__params['max_n_unsat'],
                                      n_threads=__params['n_threads'],
+                                     stop_on_first=__params['stop_on_first'],
                                      walltime=__params['walltime'],
                                      verbose=__params['verbose'])
 

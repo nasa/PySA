@@ -47,7 +47,22 @@ template <typename Formula, typename WallTime = std::nullptr_t,
 auto optimize(Formula &&formula, std::size_t max_n_unsat = 0,
               bool verbose = false,
               std::optional<std::size_t> n_threads = std::nullopt,
+              bool stop_on_first = false,
               WallTime &&walltime = nullptr, SleepTime &&sleep_time = 1ms) {
+#ifndef NDEBUG
+  std::cout << "Entering pysa::dpll:sat::optimized\n"
+    <<"max_n_unsat = " << max_n_unsat << "\n"
+    << "verbose = " << verbose << "\n"
+    << "n_threads = " << n_threads.value_or(0)  << "\n"
+    << "stop_on_first = " << stop_on_first << "\n";
+  if constexpr (std::is_null_pointer_v<WallTime>){
+    std::cout <<  "wall_time = none\n";
+  } else {
+    std::cout <<  "wall_time = "
+              << std::chrono::duration_cast<std::chrono::milliseconds>(walltime).count() << " ms\n";
+  }
+  std::cout << "sleep_time = " << std::chrono::duration_cast<std::chrono::milliseconds>(sleep_time).count() << " ms\n";
+#endif
   // Get root initializer
   const auto init_ = [&formula, max_n_unsat]() {
     return Branch<>(formula, max_n_unsat);
@@ -59,9 +74,15 @@ auto optimize(Formula &&formula, std::size_t max_n_unsat = 0,
   };
 
   // Get configurations from dpll
-  return DPLL(init_, get_, verbose,
+  if(stop_on_first){
+    return DPLL<true, true>(init_, get_, verbose,
               n_threads.value_or(std::thread::hardware_concurrency()), walltime,
               sleep_time);
+  } else {
+    return DPLL(init_, get_, verbose,
+                n_threads.value_or(std::thread::hardware_concurrency()), walltime,
+                sleep_time);
+  }
 }
 
 #ifdef USE_MPI
