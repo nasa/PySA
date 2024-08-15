@@ -40,6 +40,10 @@ specific language governing permissions and limitations under the License.
 
 namespace pysa::branching {
 
+enum struct BranchResult{
+    BRANCHOK, // default exit status
+    BRANCHEXIT // terminate all threads
+};
 /**
  * @brief Split a collection of branches into two.
  * Branches is a container that supports efficient .front() and .pop_front()
@@ -96,7 +100,7 @@ void branching_impl(const Function &fn, Branches &branches,
 
     // Define core
     auto core_ = [fn = fn, &branches](std::size_t idx, auto &&stop) {
-      fn(branches[idx], stop);
+      return fn(branches[idx], stop);
     };
 
     // Initialize threads
@@ -133,12 +137,30 @@ void branching_impl(const Function &fn, Branches &branches,
       return std::tuple{min_, max_};
     };
 
+    bool exit_all = false;
     // Avoid a race condition where count_n_branches_() may be 0 temporarily at
     // start
     std::this_thread::sleep_for(sleep_time);
 
     // Keep going if there are still branches or the stop signal is off
     while (count_n_branches_() && !*stop) {
+      for (auto& t: threads_){
+        if(t.is_ready()){
+          if(t.get() == BranchResult::BRANCHEXIT){
+              exit_all = true;
+          }
+        }
+      }
+      if(exit_all){
+#ifndef NDEBUG
+        std::cerr << "# Brancher exit " << std::endl;
+#endif
+        for (auto& t: threads_){
+          if(t.is_running())
+            t.stop();
+        }
+        return;
+      }
       // Propagate branches between two threads
       if (const auto [ei_, ni_] = balance_indexes_(); ei_ && ni_) {
         const auto e_idx_ = ei_.value();

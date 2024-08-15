@@ -23,8 +23,8 @@ specific language governing permissions and limitations under the License.
 
 namespace pysa::branching {
 
-template <bool depth_first = true, typename Branches, typename Collect>
-void DPLL_(Branches &&branches, Collect &&collect, ConstStopPtr stop) {
+template <bool depth_first = true, bool exit_on_first = false, typename Branches, typename Collect>
+BranchResult DPLL_(Branches &&branches, Collect &&collect, ConstStopPtr stop) {
   // While there are still branches ...
   while (std::size(branches) && !*stop) {
     // Get last branch (depth first)
@@ -45,11 +45,18 @@ void DPLL_(Branches &&branches, Collect &&collect, ConstStopPtr stop) {
       branches.splice(std::end(branches), branch_.branch());
 
     // Collect
-    collect(std::move(branch_));
+    if constexpr (exit_on_first){
+      if(collect(std::move(branch_))){
+        return BranchResult::BRANCHEXIT;
+      }
+    } else {
+      collect(std::move(branch_));
+    }
   }
+  return BranchResult::BRANCHOK;
 }
 
-template <bool depth_first = true, typename Branches, typename Collect,
+template <bool depth_first = true, bool exit_on_first = false, typename Branches, typename Collect,
           typename... Args>
 auto DPLL(Branches &&branches, Collect &&collect, Args &&...args) {
   /*
@@ -59,7 +66,7 @@ auto DPLL(Branches &&branches, Collect &&collect, Args &&...args) {
   // Get brancher
   return branching(
       [collect](auto &&branches, auto &&stop) {
-        DPLL_<depth_first>(branches, collect, stop);
+        return DPLL_<depth_first, exit_on_first>(branches, collect, stop);
       },
       std::forward<Branches>(branches), std::forward<Args>(args)...);
 }

@@ -53,9 +53,10 @@ int main() {
   {
     // Use one thread
     pysa::branching::TestBranching(28, 1, true);
-
+    pysa::branching::TestBranching<true>(28, 1, true);
     // Use number of threads provided by the implementation
     pysa::branching::TestBranching(30, 0, true);
+    pysa::branching::TestBranching<true>(30, 0, true);
   }
 #ifdef USE_MPI
   MPI_Barrier(mpi_comm_world);
