@@ -59,7 +59,7 @@ int main() {
 #ifdef USE_MPI
       pysa::dpll::sat::mpi::optimize(mpi_comm_world, formula_, 2, true);
 #else
-      pysa::dpll::sat::optimize(formula_, 2, true);
+      pysa::dpll::sat::optimize(formula_, 2, true, {}, false);
 #endif
 
   // Output configurations

@@ -52,7 +52,7 @@ int main(int argc, char* argv[]) {
 #endif
 
   // Print the required arguments
-  if (argc < 2 || argc > 5) {
+  if (argc < 2 || argc > 6) {
     std::cerr << "Usage: " << std::filesystem::path(argv[0]).filename().string()
               << " cnf_file [max_unsat = 0] [n_threads = 0] [verbose = 0]"
               << std::endl;
@@ -63,6 +63,9 @@ int main(int argc, char* argv[]) {
               << std::endl;
     std::cerr << "   n_threads    Number of threads to use (default = 0, "
                  "that is suggested by the implementation)"
+              << std::endl;
+    std::cerr << "   stop_on_first   Stop search when the first solution is found. "
+                 "(default = 0, find all possible solutions)"
               << std::endl;
     std::cerr << "   verbose      Level of verbosity (default = 0)"
               << std::endl;
@@ -78,13 +81,17 @@ int main(int argc, char* argv[]) {
   // Set default value for number of threads (0 = implementation specific)
   std::size_t n_threads = 0;
 
+  // Default
+  bool stop_on_first = false;
   // Set default value for verbosity
   std::size_t verbose = false;
 
   // Assign provided values
   switch (argc) {
+    case 6:
+      verbose = std::stoull(argv[5]);
     case 5:
-      verbose = std::stoull(argv[4]);
+      stop_on_first = std::stoull(argv[4]);
     case 4:
       n_threads = std::stoull(argv[3]);
     case 3:
@@ -105,7 +112,7 @@ int main(int argc, char* argv[]) {
       pysa::dpll::sat::mpi::optimize(mpi_comm_world, formula, max_unsat,
                                      verbose, n_threads);
 #else
-      pysa::dpll::sat::optimize(formula, max_unsat, verbose, n_threads);
+      pysa::dpll::sat::optimize(formula, max_unsat, verbose, n_threads, stop_on_first);
 #endif
 
 #ifdef USE_MPI

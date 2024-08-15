@@ -51,6 +51,8 @@ int main() {
     TestDPLLSAT(3, 21, 60, std::size_t{1} << 20, true);
     TestDPLLSAT(2, 21, 60, 10, true);
     TestDPLLSAT(3, 21, 60, 0, true);
+    TestDPLLSAT(3, 21, 60, 0, true, true);
+    TestDPLLSAT(3, 21, 60, 1, true, true);
   }
 
 #ifdef USE_MPI

@@ -190,7 +190,7 @@ auto TestBranch() {
 }
 
 auto TestDPLLSAT(std::size_t k, std::size_t n, std::size_t m,
-                 std::size_t max_n_unsat, bool verbose = false) {
+                 std::size_t max_n_unsat, bool verbose = false, bool stop_on_first = false) {
   // Get random SAT problem
   const auto formula_ = sat::GetRandomInstance(k, n, m);
 
@@ -200,10 +200,13 @@ auto TestDPLLSAT(std::size_t k, std::size_t n, std::size_t m,
   if (verbose) std::cerr << "Done!" << std::endl;
 
   // Get configurations from dpll
-  const auto [dpll_, branches_] = sat::optimize(formula_, max_n_unsat, verbose);
+  const auto [dpll_, branches_] = sat::optimize(formula_, max_n_unsat, verbose, {}, stop_on_first);
 
+  if(stop_on_first)
+    std::cerr << "Stopped with " << std::size(dpll_) << " solutions and " 
+              << std::size(branches_) << " remaining branches." << std::endl;
   // Branches should be empty
-  if (std::size(branches_))
+  if (!stop_on_first && std::size(branches_))
     throw std::runtime_error("Some branches are not used");
 
   // Check number of unsat
@@ -212,7 +215,7 @@ auto TestDPLLSAT(std::size_t k, std::size_t n, std::size_t m,
       throw std::runtime_error("Wrong number of unsat clauses");
 
   // Check size
-  if (std::size(dpll_) != std::size(all_))
+  if (!stop_on_first && (std::size(dpll_) != std::size(all_)))
     throw std::runtime_error("Collected wrong number of states");
 
   // Check if everything has been properly collected
