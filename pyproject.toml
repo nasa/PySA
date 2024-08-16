@@ -1,0 +1,38 @@
+[build-system]
+requires = [
+    "setuptools>=42",
+    "wheel",
+    "cmake>=3.20",
+    "cmake_build_extension",
+    "pybind11",
+    "ninja"
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pysa-cdcl"
+authors =[ { name="Humberto Munoz Bauza", email="Humberto.MunozBauza@nasa.gov" }]
+description = " "
+version = "0.0.1"
+requires-python = ">= 3.8"
+readme = {file = "README.md", content-type="text/markdown"}
+classifiers =[
+    "Programming Language :: Python :: 3",
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Programming Language :: Python :: 3 :: Only",
+    "Operating System :: Unix",
+    "Operating System :: MacOS"
+]
+dependencies = [
+    "numpy",
+    #"pysa2 @ git+ssh://git@github.com/hmunozb/pysa-redesign.git#egg=pysa2"
+]
+
+[project.scripts]
+pysa-stern = "pysa_stern.pysa_stern:PySA_Stern_main"
+

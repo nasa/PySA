@@ -49,6 +49,16 @@ namespace pysa::algstd{
       constexpr bool operator!=(const lidx<T>  &p) const { return !(*this==p); }
       // All-ones (~0) encode a null literal, but we only check the index bits.
       constexpr bool is_null() const {return (x>>1) == (T(~0) >> 1); }
+
+      static constexpr lidx from_int(int32_t l){
+        if(l>0){
+          return lidx(l-1, false);
+        } else if (l == 0){
+          return lidx();
+        } else { // l < 0
+          return lidx(-l-1, true);
+        }
+      }
     };
 
     // A SAT literal is directly represented by a logical index.
