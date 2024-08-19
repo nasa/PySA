@@ -21,6 +21,10 @@ specific language governing permissions and limitations under the License.
 
 #include <sternx/stern.h>
 
+#define MEMBER2PYDICT(_D,_CL,_M) _D[#_M] = _CL._M;
+
+#define PYDICT2MEMBER(_D,_CL,_M) _CL._M = _D[#_M].cast<decltype(_CL._M)>();
+#define PYTUP2MEMBER(_T,_I,_CL,_M) _CL._M = _T[_I].cast<decltype(_CL._M)>();
 namespace py = pybind11;
 
 // Wrapper class to make solution accessible as a numpy array
@@ -74,6 +78,30 @@ void init_mld_h(py::module& m){
           .def("Weight", &MLDProblem::Weight)
           .def("clause_list", &MLDProblem::clause_list)
           .def("read_problem_str", &MLDProblem::read_problem_string)
+          .def(py::pickle(
+            [](const MLDProblem& mldp){
+              return py::make_tuple(
+                mldp.prob_type, 
+                mldp.nvars, 
+                mldp.nrows, 
+                mldp.yarr, 
+                mldp.clauses, 
+                mldp.y, 
+                mldp.w
+              );
+            },
+            [](py::tuple t){
+              MLDProblem mldp;
+              PYTUP2MEMBER(t, 0, mldp, prob_type);
+              PYTUP2MEMBER(t, 1, mldp, nvars);
+              PYTUP2MEMBER(t, 2, mldp, nrows);
+              PYTUP2MEMBER(t, 3, mldp, yarr);
+              PYTUP2MEMBER(t, 4, mldp, clauses);
+              PYTUP2MEMBER(t, 5, mldp, y);
+              PYTUP2MEMBER(t, 6, mldp, w);
+              return mldp;
+            }
+          ))
           .doc() =  "Options definding a MLD problem."
           ;
 }
@@ -106,6 +134,34 @@ PySA-sternx: Stern algorithm for unstructured decoding problems.
         .def_readwrite("p", &sternc_opts::p)
         .def_readwrite("m", &sternc_opts::m)
         .def_readwrite("block_size", &sternc_opts::block_size)
+        .def(py::pickle(
+          [](const sternc_opts& opts){
+            py::dict d;
+            d["parcheck"] = opts.parcheck;
+            d["bench"] = opts.bench;
+            d["test_hw1"] = opts.test_hw1;
+            d["t"] = opts.t;
+            d["max_iters"] = opts.max_iters;
+            d["l"] = opts.l;
+            d["p"] = opts.p;
+            d["m"] = opts.m;
+            d["block_size"] = opts.block_size;
+            return d;
+          },
+          [](py::dict d){
+            sternc_opts opts;
+            PYDICT2MEMBER(d, opts, parcheck);
+            PYDICT2MEMBER(d, opts, bench);
+            PYDICT2MEMBER(d, opts, test_hw1);
+            PYDICT2MEMBER(d, opts, t);
+            PYDICT2MEMBER(d, opts, max_iters);
+            PYDICT2MEMBER(d, opts, l);
+            PYDICT2MEMBER(d, opts, p);
+            PYDICT2MEMBER(d, opts, m);
+            PYDICT2MEMBER(d, opts, block_size);
+            return opts;
+          }
+        ))
         .doc() =  "Options for the Stern algorithm routine."
         //.def_readwrite("nvars", &sternc_opts::nvars)
     ;
@@ -123,5 +179,8 @@ PySA-sternx: Stern algorithm for unstructured decoding problems.
     ;
     m.def("sterncpp_adjust_opts", &sterncpp_adjust_opts);
     m.def("sterncpp_main", &sterncpp_main);
+#ifdef USEMPI
+    m.attr("__pysa_mpi__") = 1;
+#endif
   init_libmld_submod(m);
 }
