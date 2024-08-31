@@ -47,6 +47,9 @@ namespace pysa::algstd{
       constexpr T idx() const { return x >> 1; }
       constexpr bool operator==(const lidx<T>  &p) const { return x == p.x || (is_null() && p.is_null()); }
       constexpr bool operator!=(const lidx<T>  &p) const { return !(*this==p); }
+      constexpr bool operator<(const lidx<T>& p) const{
+        return x < p.x;
+      }
       // All-ones (~0) encode a null literal, but we only check the index bits.
       constexpr bool is_null() const {return (x>>1) == (T(~0) >> 1); }
 
@@ -109,5 +112,18 @@ namespace pysa::algstd{
       os << (lit.sign() ? "-" : "") << lit.idx() + 1;
       return os;
     }
+
+
+// Read in a literal from an istream
+  template<typename T>
+  inline std::istream &operator>>(std::istream &is, pysa::algstd::lidx<T> &lit) {
+    int64_t l;
+    if (is >> l) {
+      bool s = l < 0;
+      T v = (s ? -l : l) - 1;
+      lit = pysa::algstd::lidx<T>(v, s);
+    }
+    return is;
+  }
 }
 

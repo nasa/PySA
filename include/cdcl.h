@@ -4,7 +4,7 @@
 #include <cassert>
 #include <iostream>
 #include <utility>
-#include "algstd/sat.hpp"
+#include "algstd/satprop.hpp"
 
 typedef pysa::algstd::SATClauseV<uint32_t> ClauseT;
 typedef ClauseT::literal_type Lit;
@@ -15,14 +15,24 @@ static const int CDCLUNSAT = -1;
 static const int CDCLCONFLICT = 1;
 
 struct CDCLConflict {
+  /// Decision level of the encountered conflict
   int64_t conflict_level = INT64_MAX;
+  /// Decision level to backtrack to
   int64_t decision_level = INT64_MAX;
+  /// Decided literal leading to the conflict
+  Lit decision_lit;
+  /// Unique implication point (UIP) literal at the conflict decision level.
+  /// That is, all implication paths from decision_lit to the conflict contain uip_lit.
+  Lit uip_lit;
+  /// The reason cut of literals leading to the conflict.
   std::vector<Lit> decision_cut;
+  /// The final learned clause, obtained from the negation of the reason cut literals.
   ClauseT learned_clause;
 };
 
+
 struct CDCL {
-  CDCL(FormulaT &&formula)
+  explicit CDCL(FormulaT &&formula)
       : formula(formula),
         prop(this->formula),
         conflicts(),
@@ -49,13 +59,18 @@ struct CDCL {
     return c;
   }
 
+  int _run();
   int run();
 
   FormulaT formula;
   pysa::algstd::SATProp<ClauseT> prop;
+  bool _uip = true;
   // Current state vector
   std::vector<uint8_t> _state;
   CDCLConflict current_conflict;
+  std::vector<pysa::algstd::SATProp<ClauseT>::conflict_edge_type> _conflict_graph_edges;
+  std::vector<Lit> _conflict_graph_nodes;
+  std::vector<int64_t> _conflict_graph_earliest_dls;
   std::vector<CDCLConflict> conflicts;
 
   // Current number of unsat clauses

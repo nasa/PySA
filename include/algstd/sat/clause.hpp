@@ -298,4 +298,16 @@ namespace pysa::algstd {
     }
     return os;
   }
+
+
+  template<typename T>
+  inline std::ostream &operator<<(std::ostream &os,
+                                  const std::vector<pysa::algstd::lidx<T>> &lits) {
+    for (uint32_t i = 0; i < lits.size(); i++) {
+      os << lits[i];
+      if (i != lits.size() - 1)
+        os << " ";
+    }
+    return os;
+  }
 } // namespace pysa::algstd
