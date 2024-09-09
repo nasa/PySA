@@ -16,12 +16,8 @@ specific language governing permissions and limitations under the License.
 */
 
 #include "pysa/sat/walksat.hpp"
-#include <chrono>
 #include <cstdlib>
-#include <filesystem>
-#include <fstream>
 #include <iostream>
-#include <random>
 #include <unordered_map>
 #include <vector>
 
@@ -41,7 +37,6 @@ walksat_result_t walksat_optimize_bench(
   {
 
   // Get initial time
-  // std::vector<pysa::dpll::BitSet<>> sols;
   size_t nsols = 0;
   size_t nits = 0;
   size_t total_nsteps = 0;
@@ -52,9 +47,6 @@ walksat_result_t walksat_optimize_bench(
   pysa::sat::WalkSatOptimizer wsopt(formula, seed, p);
   auto it_ = std::chrono::high_resolution_clock::now();
   do {
-    // auto [state, nsteps, n_unsat] =
-    // pysa::dpll::sat::walksat_optimize(formula, max_steps, seed, p);
-    //
     wsopt.restart_state();
     size_t nsteps = 0;
     uint64_t n_unsat = formula.num_clauses();
@@ -64,9 +56,6 @@ walksat_result_t walksat_optimize_bench(
         break;
     }
     auto state = wsopt.state();
-    //        if(!sol_map.count(state))
-    //            std::cout << 'U' << n_unsat << " " << std::string(state) <<
-    //            "\n";
     if (n_unsat <= max_unsat) {
       ++nsols;
       nstep_hist.push_back(nsteps);

@@ -17,7 +17,6 @@ specific language governing permissions and limitations under the License.
 
 #pragma once
 
-
 #include <random>
 #include <vector>
 #include "algstd/sat.hpp"
@@ -65,14 +64,17 @@ public:
   }
 
   int64_t best_var_flip(size_t clause) {
+    /// Find the best variables to flip in the clause.
+    /// Iterates over each literal in the clause and counts the number of
+    /// clauses that would be broken if it were flipped.
+    /// Returns the minimum number of clauses that would be broken and
+    /// saves the corresponding variables to _bestvars[0:_numbest]
     auto &cl_vars = formula[clause];
     auto new_unsats = (int64_t)instance.n_clauses();
     _numbest = 0;
     for (const Lit_WS& lit : cl_vars) { // find the best variable to flip
       std::size_t var = lit.idx();
       uint8_t sgn = lit.sign();
-      // auto &clv = instance.clauses[var];
-      // auto &cls = instance.signs[var];
 
       int32_t lit_new_unsats = 0;
 
@@ -103,15 +105,18 @@ public:
     return new_unsats;
   }
   uint64_t step() {
+    /// Perform a single iteration of the WalkSAT algorithm, if the current state
+    /// is not a satisfying assignment, and returns the current number of unsatisfied clauses.
     if (n_unsat_clauses == 0)
       return 0;
     // randomly select an unsatisfied clause
-    // std::uniform_int_distribution<uint32_t> dist(0, n_unsat_clauses-1);
     uint64_t ucl = rng() % n_unsat_clauses;
     uint64_t cl = _unsat_clauses[ucl];
     std::size_t next_var;
 
     int64_t best_flips_break = best_var_flip(cl);
+    // flip a random variable in the clause if there is no
+    // non-breaking flip with walk probability p
     if (best_flips_break > 0 && p > 0.0 &&
         std::uniform_real_distribution<float>()(rng) < p) {
       next_var = select_random_var(cl);
