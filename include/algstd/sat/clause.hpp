@@ -219,25 +219,4 @@ namespace pysa::algstd
         return ClFlag::NONE;
       }
     }
-
-    template <typename ClauseT>
-    ClFlag propagate_lit(ClauseT& clause, typename ClauseT::literal_type lit){
-        // Propagate the truth value of a literal to simplify the clause. 
-        // If ~lit is in the clause, returns a SAT flags. Removes any occurrence of lit
-        // and returns the CLSIMP flag. 
-        bool _removed = false;
-        uint16_t n = clause.size();
-        for( uint16_t i = 0; i < n; ++i){
-          if(lit==clause[n-i-1]){
-            return ClFlag::SAT;
-          } else if(~lit==clause[n-i-1]){
-            clause.remove_lit(n-i-1);
-            _removed = true;
-          }
-        }
-        if(_removed)
-          return ClFlag::CLSIMP;
-        else
-          return ClFlag::NONE;
-    }
 } // namespace pysa::algstd

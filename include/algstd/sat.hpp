@@ -97,7 +97,7 @@ namespace pysa::algstd{
         return _ncl;
       }
       template<typename FormulaT>
-      SATIndexer(const FormulaT& formula): clauses_by_var{} {
+      explicit SATIndexer(const FormulaT& formula): clauses_by_var{} {
         typedef typename FormulaT::clause_type ClauseT;
         const auto& clauses = formula.clauses();
 
@@ -106,91 +106,6 @@ namespace pysa::algstd{
         }
       }
     };
-
-    template <typename FormulaT>
-    struct SATProp{
-      //! Wrapper class to perform unit propagation on a SAT formula.
-      typedef typename FormulaT::clause_type clause_type;
-      typedef typename FormulaT::literal_type literal_type;
-      typedef typename FormulaT::clause_container clause_container;
-      typedef std::tuple<literal_type, size_t, literal_type> implication_type;
-      typedef std::vector<implication_type> implication_seq;
-
-      FormulaT& _formula;
-      SATIndexer _cv;
-      // Stack of units
-      std::vector<size_t> units;
-      // Sequence of implications from previous call to unit_propagation()
-      implication_seq imps;
-
-      SATProp(FormulaT& formula): _cv(formula), _formula(formula){
-        clause_container& clauses = _formula.clauses();
-        
-      }
-
-      implication_seq unit_propagation(){
-        
-        clause_container& clauses = _formula.clauses();
-        units.clear();
-        imps.clear();
-        size_t ncl = _formula.num_clauses();
-
-        for(size_t i = 0; i < ncl; ++i){
-          clause_type& cl = clauses[i];
-          if(is_unit(cl)){
-            units.push_back(i);
-            mark_sat(cl);
-            imps.emplace_back(cl[0], i, literal_type());
-          }
-        }
-        
-        while(units.size() > 0){
-          clause_type& unit_cl = clauses[units.back()];
-          literal_type unit_lit = unit_cl[0];
-          units.pop_back();
-          auto& to_clauses = _cv.clauses_by_var[unit_lit.idx()];
-          for(ClIdx cli: to_clauses){
-            size_t i = cli.idx();
-            clause_type& cl = clauses[i];
-            if(is_sat(cl))
-              continue;
-            
-            auto prop_flag = propagate_lit(cl, unit_lit);
-            assert(prop_flag != ClFlag::NONE);
-            if(prop_flag == ClFlag::SAT){
-              mark_sat(cl);
-              imps.emplace_back(unit_lit, i, literal_type());
-            }
-            else if(is_unit(cl)){
-              literal_type implied_lit = *cl.begin();
-              imps.emplace_back(unit_lit, i, implied_lit);
-              units.push_back(i);
-            } else if(is_empty(cl)) { 
-              // continue propagation even if a conflict is reached
-            }
-          }
-        }
-        return imps;
-      }
-    };
-    template <typename FormulaT>
-    std::vector<std::tuple<typename FormulaT::literal_type, size_t>> 
-    unit_propagation(
-      FormulaT& formula
-    ){
-      //! Perform unit propagation on a formula and return the sequence of implications
-      //! as (literal assignment, clause index) tuples.
-      SATIndexer cv{formula};
-      // Stack of units
-      std::vector<size_t> _units;
-      size_t ncl = formula.num_clauses();
-      typename FormulaT::clause_container& clauses = formula.clauses();
-      for(size_t i = 0; i < ncl; ++i){
-        typename FormulaT::clause_type& cl = clauses[i];
-        if(cl.is_unit())
-          _units.push_back(i);
-      }
-    }
 }
 
 // output stream implementations
