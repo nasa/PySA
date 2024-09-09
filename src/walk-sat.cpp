@@ -16,6 +16,7 @@ specific language governing permissions and limitations under the License.
 */
 
 #include "pysa/sat/walksat.hpp"
+#include <chrono>
 #include <cstdlib>
 #include <iostream>
 #include <unordered_map>
