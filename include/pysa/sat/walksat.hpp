@@ -248,8 +248,11 @@ private:
 };
 
 inline std::tuple<std::vector<uint8_t>, uint64_t, uint64_t>
-walksat_optimize(const Formula_WS &formula, uint64_t max_steps,
-                 uint64_t random_seed = 0, double p = 1.0) {
+walksat_optimize(const Formula_WS &formula,
+                 uint64_t max_steps,
+                 double p = 1.0,
+                 uint32_t max_unsat = 0,
+                 uint64_t random_seed = 0) {
   /// Performs optimization with walksat and returns the tuple (final_state,
   /// num_steps, num_unsat)
   WalkSatOptimizer wsopt(formula, random_seed, p);
@@ -258,7 +261,7 @@ walksat_optimize(const Formula_WS &formula, uint64_t max_steps,
   uint64_t n_unsat = formula.num_clauses();
   for (; i < max_steps; ++i) {
     n_unsat = wsopt.step();
-    if (n_unsat == 0)
+    if (n_unsat <= max_unsat)
       break;
   }
   return {wsopt.state(), i, n_unsat};
@@ -272,7 +275,8 @@ walksat_result_t walksat_optimize_bench(
     double p, 
     uint32_t max_unsat, 
     uint64_t seed, 
-    double bencht);
+    double timeout,
+    bool bench);
   
 } // namespace pysa::sat
 

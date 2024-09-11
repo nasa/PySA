@@ -34,9 +34,11 @@ walksat_result_t walksat_optimize_bench(
     double p, 
     uint32_t max_unsat, 
     uint64_t seed, 
-    double bencht)
+    double timeout,
+    bool bench)
   {
 
+  int timeout_ms = timeout > 0 ? int(timeout * 1000) : 0;
   // Get initial time
   size_t nsols = 0;
   size_t nits = 0;
@@ -55,23 +57,25 @@ walksat_result_t walksat_optimize_bench(
       n_unsat = wsopt.step();
       if (n_unsat <= max_unsat)
         break;
+      // occassionally check for timeout in the inner loop
+      if(timeout_ms > 0 && (nsteps+1)%1000 == 0)
+        if(std::chrono::high_resolution_clock::now() - it_ >
+            std::chrono::milliseconds(timeout_ms))
+          break;
     }
     auto state = wsopt.state();
     if (n_unsat <= max_unsat) {
       ++nsols;
       nstep_hist.push_back(nsteps);
+      sol_map[state].first += 1;
+      sol_map[state].second = n_unsat;
     }
-
-    if (seed > 0)
-      seed += 3;
-    sol_map[state].first += 1;
-    sol_map[state].second = n_unsat;
     total_nsteps += nsteps;
     nits += 1;
-    if (bencht == 0.0)
+    if (!bench)
       break;
   } while (std::chrono::high_resolution_clock::now() - it_ <
-           std::chrono::milliseconds(int(bencht * 1000)));
+           std::chrono::milliseconds(int(timeout * 1000)));
   // Get final time
   auto et_ = std::chrono::high_resolution_clock::now();
   double duration_ms =

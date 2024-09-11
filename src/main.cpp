@@ -9,7 +9,7 @@
 
 int main(int argc, char *argv[]) {
   // Print the required arguments
-  if (argc < 2 || argc > 7) {
+  if (argc < 3 || argc > 7) {
     std::cerr << "Usage: " << std::filesystem::path(argv[0]).filename().string()
               << " cnf_file max_steps [p = 0.5] [unsat = 0] [seed = 0] "
                  "[cutoff_time = 0]\n";
@@ -20,23 +20,22 @@ int main(int argc, char *argv[]) {
                  "= 0.5)\n";
     std::cerr << "   unsat        Maximum number of unsatisfied clauses to "
                  "target (default = 0)\n";
-    std::cerr << "   seed         Random seed (default = seed from entropy)\n";
+    std::cerr << "   seed         Random seed (default = 0: seed from entropy)\n";
     std::cerr << "   cutoff_time  The cutoff benchmarking time in seconds "
                  "(default = exit on first solution)";
     std::cerr << std::endl;
+    if(argc==2){
+      std::cerr << "Both cnf_file and max_steps are required arguments." << std::endl;
+    }
     return EXIT_FAILURE;
   }
-  
-  // Set filename for cnf formula
+
   std::string cnf_file{argv[1]};
-  // Set default value for maximum number of unsatisfied clauses
   std::size_t max_steps = 100;
   unsigned long max_unsat = 0;
-  // Set default value for number of threads (0 = implementation specific)
   float p = 0.5;
   // Default random seed
   std::uint64_t seed = 0;
-  // Set default value for verbosity
   double bencht = 0.0;
 
   // Assign provided values
@@ -61,5 +60,5 @@ int main(int argc, char *argv[]) {
       throw std::runtime_error("Cannot open file: '" + cnf_file + "'");
   }();
 
-  pysa::sat::walksat_optimize_bench(formula, max_steps, p, max_unsat, seed, bencht);
+  pysa::sat::walksat_optimize_bench(formula, max_steps, p, max_unsat, seed, bencht, bencht>0.0);
 }
