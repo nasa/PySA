@@ -32,7 +32,7 @@ struct CDCLResult{
   size_t computation_time_us = 0;
 };
 
-CDCLResult cdcl_optimize(const std::vector<std::vector<int32_t>>& fv){
+CDCLResult cdcl_optimize(const std::vector<std::vector<int32_t>>& fv, bool uip){
 
   auto t0_ = std::chrono::high_resolution_clock::now();
 
@@ -45,6 +45,7 @@ CDCLResult cdcl_optimize(const std::vector<std::vector<int32_t>>& fv){
     formula.add_clause(std::move(cl));
   }
   CDCL cdcl(std::move(formula));
+  cdcl._uip = uip;
 
   auto it_ = std::chrono::high_resolution_clock::now();
   int rc = cdcl.run();

@@ -43,9 +43,10 @@ class CDCLResult(SATResult):
 
 class CDCLOptimizer(Algorithm):
 
-    def __init__(self, verbose=False) -> None:
+    def __init__(self, uip=True, verbose=False) -> None:
         super().__init__()
         self.verbose = verbose
+        self.uip = uip
 
     def instance_class(self):
         return [SatDimacs, SatK]
@@ -61,7 +62,7 @@ class CDCLOptimizer(Algorithm):
 
         # Optimize
         t1 = timeit.default_timer()
-        res = cdcl_optimize(formula)
+        res = cdcl_optimize(formula, self.uip)
         t2 = timeit.default_timer()
         result = CDCLResult(res)
         result._total_runtime = t2 - t0
