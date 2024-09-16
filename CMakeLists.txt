@@ -15,6 +15,8 @@
 
 cmake_minimum_required(VERSION 3.21)
 project(pysa_cdcl)
+enable_testing()
+
 include_directories(include)
 set(CMAKE_CXX_STANDARD 17)
 if(SATTRACE)
