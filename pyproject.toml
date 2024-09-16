@@ -29,10 +29,7 @@ classifiers =[
     "Operating System :: MacOS"
 ]
 dependencies = [
-    "numpy",
-    #"pysa2 @ git+ssh://git@github.com/hmunozb/pysa-redesign.git#egg=pysa2"
+    "numpy"
 ]
 
-[project.scripts]
-pysa-stern = "pysa_stern.pysa_stern:PySA_Stern_main"
 

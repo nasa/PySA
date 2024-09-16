@@ -15,6 +15,7 @@ setuptools.setup(
             source_dir=str(Path(__file__).parent.absolute()),
             cmake_configure_options=[
                 "-DCMAKE_BUILD_TYPE=Release",
+                "-DPYBINDINGS=ON",
                 f"-DPython_ROOT_DIR={Path(sys.prefix)}"
             ],
             cmake_component="bindings",
