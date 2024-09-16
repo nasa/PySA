@@ -49,5 +49,5 @@ jobs:
           --config ${{ matrix.build_type }}
 
       - name: Test
-        working-directory: ${{github.workspace}}/build/tests
+        working-directory: ${{github.workspace}}/build
         run: ctest -C ${{ matrix.build_type }} --rerun-failed --output-on-failure
