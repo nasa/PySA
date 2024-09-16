@@ -13,7 +13,7 @@ Optionally, the program can be built with an MPI compiler.
 ```sh
 mkdir build && cd build
 cmake .. 
-make stern
+make sternx
 ```
 
 To compile with MPI support, run cmake with the definition `cmake -DMPI ..`.

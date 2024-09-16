@@ -52,7 +52,9 @@ int main(int argc, char **argv) {
   int32_t p = 1;
   sternc_opts opts;
   positional_options_description posopts;
-  options_description desc{"Options"};
+  options_description desc{
+    "Usage: sternx [input]  Options"
+  };
   desc.add_options()("help,h", "Help screen")(
       "bench", bool_switch(&bench),
       "Continue until max_iters iterations and count how often the solution "
@@ -73,7 +75,7 @@ int main(int argc, char **argv) {
       "max_factor", value<int32_t>(&max_factor)->default_value(10),
       "Set the maximum number of iterations across all ranks to max_factor * "
       "(2**P), where P is the estimated success probability.")(
-      "input", value<std::string>(&filenm), "Verbosity");
+      "input", value<std::string>(&filenm), "Input file in .mld format");
 
   posopts.add("input", 1);
   variables_map vm;
