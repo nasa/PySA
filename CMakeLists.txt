@@ -24,6 +24,7 @@ add_library(cdcl_lib STATIC cdcl.cpp)
 add_executable(test_cdcl ./tests/cdcl_tests.cpp cdcl.cpp)
 add_executable(pysa_cdcl main.cpp cdcl.cpp)
 
+add_test(NAME test_cdcl COMMAND test_cdcl)
 ## Python bindings
 
 if(PYBINDINGS)
