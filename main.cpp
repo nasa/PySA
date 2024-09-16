@@ -1,3 +1,20 @@
+/*
+Author: Humberto Munoz Bauza (humberto.munozbauza@nasa.gov)
+
+Copyright © 2023, United States Government, as represented by the Administrator
+of the National Aeronautics and Space Administration. All rights reserved.
+
+The PySA, a powerful tool for solving optimization problems is licensed under
+the Apache License, Version 2.0 (the "License"); you may not use this file
+except in compliance with the License. You may obtain a copy of the License at
+http://www.apache.org/licenses/LICENSE-2.0.
+
+Unless required by applicable law or agreed to in writing, software distributed
+under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+CONDITIONS OF ANY KIND, either express or implied. See the License for the
+specific language governing permissions and limitations under the License.
+*/
+
 #include <chrono>
 #include <iostream>
 #include <filesystem>
@@ -11,13 +28,15 @@ int main(int argc, char* argv[]) {
   if (argc < 2 || argc > 3){
     std::cerr << "Usage: " << std::filesystem::path(argv[0]).filename().string()
                            << " cnf_file" << std::endl;
+    return 1;
   }
 
   auto t0_ = std::chrono::high_resolution_clock::now();
   std::string cnf_file{argv[1]};
   std::ifstream ifs(cnf_file);
   if(!ifs.good()){
-    throw std::runtime_error("Unable to open " + cnf_file);
+    std::cerr << "Unable to open " << cnf_file << std::endl;
+    return 1;
   }
 
   FormulaT formula = pysa::algstd::ReadCNF(ifs);
