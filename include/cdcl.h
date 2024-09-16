@@ -19,6 +19,7 @@ specific language governing permissions and limitations under the License.
 
 #include <cassert>
 #include <iostream>
+#include <optional>
 #include <utility>
 #include "algstd/satprop.hpp"
 
