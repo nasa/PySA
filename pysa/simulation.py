@@ -127,6 +127,7 @@ def simulation_parallel(update_spin: UpdateSpinFunction,
                         local_fields: Vector,
                         states: List[State],
                         energies: List[float],
+                        beta_idx: List[int],
                         betas: List[float],
                         n_sweeps: int,
                         get_part_fun: bool = False,
@@ -142,18 +143,19 @@ def simulation_parallel(update_spin: UpdateSpinFunction,
     _best_energy = np.copy(energies)
     _best_state = np.copy(states)
     _best_sweeps = np.zeros(n_replicas, dtype=np.int32)
-
+    betas_sorted = np.empty_like(betas)
     log_omegas = np.zeros(n_sweeps)
 
     # For each run ...
     for s in range(n_sweeps):
-
+        for k in range(n_replicas):
+            betas_sorted[beta_idx[k]] = betas[k]
         # ... apply sweep for each replica ...
         for k in numba.prange(n_replicas):
 
             # Apply sweep
             energies[k] += sweep(update_spin, couplings, local_fields,
-                                 states[k], betas[k])
+                                 states[k], betas_sorted[k])
 
             # Store best state
             if energies[k] < _best_energy[k]:
@@ -163,10 +165,10 @@ def simulation_parallel(update_spin: UpdateSpinFunction,
 
         # ... and pt move.
         if use_pt:
-            utils.pt(states, energies, betas)
+            utils.pt(states, energies, beta_idx, betas)
         # Calculate the weights for the partition function
         if get_part_fun:
-            log_omegas[s] = get_log_omega(betas, energies)
+            log_omegas[s] = get_log_omega(betas, beta_idx, energies)
 
     # Get lowest energy
     best_pos = np.argmin(_best_energy)
@@ -175,8 +177,8 @@ def simulation_parallel(update_spin: UpdateSpinFunction,
     best_sweeps = _best_sweeps[best_pos]
 
     # Return states and energies
-    return ((states, energies, betas, log_omegas), (best_state, best_energy,
-                                                    best_sweeps, s + 1))
+    return ((states, energies, beta_idx, log_omegas), (best_state, best_energy,
+                                                       best_sweeps, s + 1))
 
 
 @numba.njit(fastmath=True, nogil=True, parallel=False)
@@ -186,6 +188,7 @@ def simulation_sequential(update_spin: UpdateSpinFunction,
                           local_fields: Vector,
                           states: List[State],
                           energies: List[float],
+                          beta_idx: List[int],
                           betas: List[float],
                           n_sweeps: int,
                           get_part_fun: bool = False,
@@ -201,18 +204,19 @@ def simulation_sequential(update_spin: UpdateSpinFunction,
     best_state = states[0]
     best_energy = energies[0]
     best_sweeps = 0
-
+    betas_sorted = np.empty_like(betas)
     log_omegas = np.zeros(n_sweeps)
 
     # For each run ...
     for s in range(n_sweeps):
-
+        for k in range(n_replicas):
+            betas_sorted[beta_idx[k]] = betas[k]
         # ... apply sweep for each replica ...
         for k in range(n_replicas):
 
             # Apply sweep
             energies[k] += sweep(update_spin, couplings, local_fields,
-                                 states[k], betas[k])
+                                 states[k], betas_sorted[k])
 
             # Store best state
             if energies[k] < best_energy:
@@ -222,14 +226,14 @@ def simulation_sequential(update_spin: UpdateSpinFunction,
 
         # ... and pt move.
         if use_pt:
-            utils.pt(states, energies, betas)
+            utils.pt(states, energies, beta_idx, betas)
         # Calculate the weights for the partition function
         if get_part_fun:
-            log_omegas[s] = get_log_omega(betas, energies)
+            log_omegas[s] = get_log_omega(betas, beta_idx, energies)
 
     # Return states and energies
-    return ((states, energies, betas, log_omegas), (best_state, best_energy,
-                                                    best_sweeps, s + 1))
+    return ((states, energies, beta_idx, log_omegas), (best_state, best_energy,
+                                                       best_sweeps, s + 1))
 
 
 @numba.njit(fastmath=True, nogil=True, parallel=False)

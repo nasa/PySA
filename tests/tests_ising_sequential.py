@@ -190,6 +190,7 @@ def test_pt(n_vars: int, n_replicas: int):
     # Get random temperatures
     betas = np.random.random(n_replicas) * 20
     betas_copy = np.copy(betas)
+    beta_idx = np.arange(n_replicas)
 
     # Get initial state
     states = 2 * np.random.randint(2,
@@ -202,7 +203,7 @@ def test_pt(n_vars: int, n_replicas: int):
     energies_copy = np.copy(energies)
 
     # Apply PT
-    utils.pt(states, energies, betas)
+    utils.pt(states, energies, beta_idx, betas)
 
     # Check that betas are just shuffled
     assert (np.allclose(sorted(betas), sorted(betas_copy)))
@@ -235,7 +236,7 @@ def test_random_sweep_simulation_ising(n_vars: int):
 
     # Fix temperature
     betas = np.array([1], dtype=dtype)
-
+    beta_idx = np.arange(1)
     # Get initial state
     states = 2 * np.random.randint(2, size=(1, n_vars)).astype(dtype) - 1
 
@@ -246,7 +247,7 @@ def test_random_sweep_simulation_ising(n_vars: int):
     # Simulate
     _, (best_state, best_energy, _, _) = simulation.simulation_sequential(
         ising.update_spin, simulation.random_sweep, couplings, local_fields,
-        states, energies, betas, 10000)
+        states, energies, beta_idx, betas, 10000)
 
     # Check that best energy is correct
     assert (np.isclose(best_energy,
@@ -268,7 +269,7 @@ def test_sequential_sweep_simulation_ising(n_vars: int):
 
     # Fix temperature
     betas = np.array([1], dtype=dtype)
-
+    beta_idx = np.arange(1)
     # Get initial state
     states = 2 * np.random.randint(2, size=(1, n_vars)).astype(dtype) - 1
 
@@ -279,7 +280,7 @@ def test_sequential_sweep_simulation_ising(n_vars: int):
     # Simulate
     _, (best_state, best_energy, _, _) = simulation.simulation_sequential(
         ising.update_spin, simulation.sequential_sweep, couplings, local_fields,
-        states, energies, betas, 10000)
+        states, energies, beta_idx, betas, 10000)
 
     # Check that best energy is correct
     assert (np.isclose(best_energy,

@@ -319,15 +319,16 @@ class Solver(object):
                 # Start timer
                 t_ini = time()
 
-                # Get states and energy
+                # Get states and energy of replicas
                 w = _init_strategy()
-
+                # Assign initial temperatures sequentially to the replicas
+                beta_idx = np.arange(num_replicas)
                 # End timer
                 t_end = time()
 
                 return simulation(self._module.update_spin,
                                   pysa.simulation.random_sweep, couplings,
-                                  local_fields, *w, betas, num_sweeps,
+                                  local_fields, *w, beta_idx, betas, num_sweeps,
                                   get_part_fun, use_pt), t_end - t_ini
 
         elif update_strategy == 'sequential':
@@ -339,13 +340,15 @@ class Solver(object):
 
                 # Get states and energy
                 w = _init_strategy()
+                # Assign initial temperatures sequentially to the replicas
+                beta_idx = np.arange(num_replicas)
 
                 # End timer
                 t_end = time()
 
                 return simulation(self._module.update_spin,
                                   pysa.simulation.sequential_sweep, couplings,
-                                  local_fields, *w, betas, num_sweeps,
+                                  local_fields, *w, beta_idx, betas, num_sweeps,
                                   get_part_fun, use_pt), t_end - t_ini
 
         else:
@@ -358,7 +361,7 @@ class Solver(object):
             t_ini = time()
 
             # Simulate
-            ((out_states, out_energies, out_betas, out_log_omegas),
+            ((out_states, out_energies, out_beta_idx, out_log_omegas),
              (best_state, best_energy, best_sweeps,
               ns)), init_time = _simulate_core()
 
@@ -376,13 +379,12 @@ class Solver(object):
             # Sort output temperatures (if required)
             if sort_output_temps:
 
-                # Argsort temperatures
-                _sort = np.argsort(out_betas)[::-1]
-
                 # Sort temperatures and states
-                out_betas = out_betas[_sort]
-                out_states = out_states[_sort]
-                out_energies = out_energies[_sort]
+                out_betas = betas
+                out_states = out_states[out_beta_idx]
+                out_energies = out_energies[out_beta_idx]
+            else:
+                out_betas = betas[out_beta_idx]
 
             with np.errstate(divide='ignore'):
                 out_temps = np.divide(1, out_betas)

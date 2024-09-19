@@ -77,7 +77,7 @@ def combine_logZf(solution: pd.DataFrame):
 
 
 @numba.njit(fastmath=True, nogil=True, parallel=False)
-def get_log_omega(betas: Vector, energies: Vector):
+def get_log_omega(betas: Vector, beta_idx: List[int], energies: Vector):
     '''Takes in the temperatures and energies of an annealing
     procedure and outputs what log_omega the AIS weight used for
     calculating the log of the partition function'''
@@ -89,7 +89,7 @@ def get_log_omega(betas: Vector, energies: Vector):
 
     # Sort temperatures and states
     cur_betas = betas[_sort]
-    cur_energies = energies[_sort]
+    cur_energies = energies[beta_idx[_sort]]
 
     if cur_betas[0] != 0:
         raise ValueError(
