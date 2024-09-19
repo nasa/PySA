@@ -28,11 +28,17 @@ def generate_ising_instances(n_vars, n_instances, rng=None):
     return problems
 
 
-
-def pysa_solve(
-        problem, n_sweeps=256, n_replicas=40, n_repetitions=101, min_temp=1.0, max_temp=3.5,
-        float_type = 'float32', verbose=True):
-    solver = Solver(problem=problem, problem_type='ising', float_type=float_type)
+def pysa_solve(problem,
+               n_sweeps=256,
+               n_replicas=40,
+               n_repetitions=101,
+               min_temp=1.0,
+               max_temp=3.5,
+               float_type='float32',
+               verbose=True):
+    solver = Solver(problem=problem,
+                    problem_type='ising',
+                    float_type=float_type)
     res = solver.metropolis_update(
         num_sweeps=n_sweeps,
         num_reads=n_repetitions,
@@ -48,7 +54,12 @@ def pysa_solve(
     return res
 
 
-def find_ground_states(problem_instances, n_sweeps=64, n_replicas=40, n_reps=100, min_temp=1.0, max_temp=3.5):
+def find_ground_states(problem_instances,
+                       n_sweeps=64,
+                       n_replicas=40,
+                       n_reps=100,
+                       min_temp=1.0,
+                       max_temp=3.5):
     """
     Find the ground state energies of a collection of Ising problem instances.
     :return: gs_energies: Array of ground state energies.
@@ -56,8 +67,11 @@ def find_ground_states(problem_instances, n_sweeps=64, n_replicas=40, n_reps=100
     gs_energies = []
     for i, problem in enumerate(problem_instances):
         _res = pysa_solve(problem,
-                          n_sweeps=n_sweeps, n_replicas=n_replicas, n_repetitions=n_reps,
-                          min_temp=min_temp, max_temp=max_temp,
+                          n_sweeps=n_sweeps,
+                          n_replicas=n_replicas,
+                          n_repetitions=n_reps,
+                          min_temp=min_temp,
+                          max_temp=max_temp,
                           verbose=False)
         best_energies = _res.best_energy
         gs_e = np.min(best_energies)
@@ -70,12 +84,19 @@ def find_ground_states(problem_instances, n_sweeps=64, n_replicas=40, n_reps=100
 
 
 class solverbench:
-    def __init__(self, problem_instances, gs_energies,
-                 nsw=16, nreplicas=32, min_temp=1.0, max_temp=3.5, n_repetitions=201,
-                 instance_set_name="IsingInstances"
-                 ):
+
+    def __init__(self,
+                 problem_instances,
+                 gs_energies,
+                 nsw=16,
+                 nreplicas=32,
+                 min_temp=1.0,
+                 max_temp=3.5,
+                 n_repetitions=201,
+                 instance_set_name="IsingInstances"):
         # Gather all metrics for each instance
-        instance_runtimes = []  # Runtime arrays for each repetition, in seconds
+        instance_runtimes = [
+        ]  # Runtime arrays for each repetition, in seconds
         runs_attempted = []  # Number of total attempted repetitions
         runs_solved = []  # Number of repetitions solved successfully
         energy_gap = []  # Optimization gap (Energy of the Ising Hamiltonian)
@@ -83,17 +104,24 @@ class solverbench:
         self.set_name = instance_set_name
         self.nprobs = len(problem_instances)
         for i, problem in enumerate(problem_instances):
-            _res = pysa_solve(problem, n_sweeps=nsw, n_replicas=nreplicas,
-                              n_repetitions=n_repetitions, min_temp=min_temp, max_temp=max_temp, verbose=False)
+            _res = pysa_solve(problem,
+                              n_sweeps=nsw,
+                              n_replicas=nreplicas,
+                              n_repetitions=n_repetitions,
+                              min_temp=min_temp,
+                              max_temp=max_temp,
+                              verbose=False)
             # We throw out the first run to ignore the influence of PySA's initialization/JIT compilation
             runs_attempted.append(n_repetitions - 1)
             best_energies = _res.best_energy[1:]
             success_arr = np.less_equal(best_energies, gs_energies[i])
             runs_solved.append(int(np.sum(success_arr)))
-            configurations.append([[int(si) for si in s] for s in _res.best_state[1:]])
+            configurations.append([[int(si) for si in s]
+                                   for s in _res.best_state[1:]])
             runtimes = list(_res['runtime (us)'][1:] * 1e-6)
             instance_runtimes.append(runtimes)
-            energy_gap.append([float(e) for e in np.asarray(best_energies - gs_energies[i])])
+            energy_gap.append(
+                [float(e) for e in np.asarray(best_energies - gs_energies[i])])
 
         self.instance_runtimes = instance_runtimes
         self.runs_attempted = runs_attempted
@@ -124,10 +152,20 @@ class solverbench:
         return _ser
 
 
-def benchmark_pysa_solver(problem_instances, gs_energies,
-                          nsw=16, nreplicas=32, min_temp=1.0, max_temp=3.5, n_repetitions=201):
-    bench = solverbench(problem_instances, gs_energies, nsw=nsw, nreplicas=nreplicas,
-                        min_temp=min_temp, max_temp=max_temp, n_repetitions=n_repetitions)
+def benchmark_pysa_solver(problem_instances,
+                          gs_energies,
+                          nsw=16,
+                          nreplicas=32,
+                          min_temp=1.0,
+                          max_temp=3.5,
+                          n_repetitions=201):
+    bench = solverbench(problem_instances,
+                        gs_energies,
+                        nsw=nsw,
+                        nreplicas=nreplicas,
+                        min_temp=min_temp,
+                        max_temp=max_temp,
+                        n_repetitions=n_repetitions)
     return bench.serialize()
 
 
@@ -149,7 +187,8 @@ def nts(success_arr: np.ndarray, ptgt=0.99):
         success_arr = np.asarray(success_arr)
         nsucc = np.sum(success_arr, axis=-1)
         psucc = nsucc / success_arr.shape[-1]
-        _nts = np.where(np.less(psucc, ptgt), np.log(1.0 - ptgt) / np.log(1.0 - psucc), 1.0)
+        _nts = np.where(np.less(psucc, ptgt),
+                        np.log(1.0 - ptgt) / np.log(1.0 - psucc), 1.0)
         _nts = np.where(np.greater(psucc, 0.0), _nts, np.inf)
         return _nts
 
@@ -164,17 +203,29 @@ def raw_to_tts(raw_data, set_name=None, gap_key='energy_gap', ptgt=0.99):
     :param ptgt: Target confidence level to calculate NTS and TTS (Default: 99%)
     :return: Processed instance data with TTS information as a dict of numpy arrays.
     """
-    instance_idx = np.asarray(
-        [ _r['instance_idx'] for _r in raw_data if (set_name is None) or (_r['set'] == set_name)])
-    runs_attempted = np.asarray(
-        [ _r['runs_attempted'] for _r in raw_data if (set_name is None) or (_r['set'] == set_name)])
-    runs_solved = np.asarray(
-        [_r['runs_solved'] for _r in raw_data if (set_name is None) or (_r['set'] == set_name)])
-    runtime_seconds = np.stack(
-        [np.asarray(_r['runtime_seconds']) for _r in raw_data if (set_name is None) or (_r['set'] == set_name)], axis=0)
+    instance_idx = np.asarray([
+        _r['instance_idx'] for _r in raw_data
+        if (set_name is None) or (_r['set'] == set_name)
+    ])
+    runs_attempted = np.asarray([
+        _r['runs_attempted'] for _r in raw_data
+        if (set_name is None) or (_r['set'] == set_name)
+    ])
+    runs_solved = np.asarray([
+        _r['runs_solved'] for _r in raw_data
+        if (set_name is None) or (_r['set'] == set_name)
+    ])
+    runtime_seconds = np.stack([
+        np.asarray(_r['runtime_seconds'])
+        for _r in raw_data if (set_name is None) or (_r['set'] == set_name)
+    ],
+                               axis=0)
     runtime_mean_seconds = np.mean(runtime_seconds, axis=1)
-    opt_gap = np.stack(
-        [np.asarray(_r[gap_key]) for _r in raw_data if (set_name is None) or (_r['set'] == set_name)], axis=0)
+    opt_gap = np.stack([
+        np.asarray(_r[gap_key])
+        for _r in raw_data if (set_name is None) or (_r['set'] == set_name)
+    ],
+                       axis=0)
     success_array = np.less_equal(opt_gap, 0.0)
     for i in range(len(runs_attempted)):
         assert runs_attempted[i] == len(success_array[i])
@@ -209,10 +260,12 @@ def tts_boots(bench_tts, nboots=20, ptgt=0.99):
             _ttsarr = []
             for j in range(ninst):  # For each instance
                 reps = np.random.choice(np.arange(nrepetitions), nrepetitions)
-                success_arr = np.less_equal(bench_tts['energy_gap'][j, reps], 0)
+                success_arr = np.less_equal(bench_tts['energy_gap'][j, reps],
+                                            0)
                 nsucc = np.sum(success_arr, axis=-1)
                 psucc = nsucc / success_arr.shape[-1]
-                _nts = np.where(np.less(psucc, ptgt), np.log(1.0 - ptgt) / np.log(1.0 - psucc), 1.0)
+                _nts = np.where(np.less(psucc, ptgt),
+                                np.log(1.0 - ptgt) / np.log(1.0 - psucc), 1.0)
                 _nts = np.where(np.greater(psucc, 0.0), _nts, np.inf)
                 _ttsarr.append(bench_tts['runtime_mean_seconds'][j] * _nts)
             _tts = np.quantile(_ttsarr, ptgt)
@@ -221,8 +274,7 @@ def tts_boots(bench_tts, nboots=20, ptgt=0.99):
         return np.asarray(_tts_samps)
 
 
-@pytest.mark.parametrize(
-    'n_vars', [48, 64, 80])
+@pytest.mark.parametrize('n_vars', [48, 64, 80])
 def test_tts(n_vars: int):
     # Generate the benchmark instances
     rng = np.random.default_rng(1234 + n_vars)
@@ -230,8 +282,13 @@ def test_tts(n_vars: int):
     print("Finding the ground state energies ...")
     gs_energies = find_ground_states(problem_instances)
     print("Benching ...")
-    bench = benchmark_pysa_solver(problem_instances, gs_energies, 32, 30, 1.0, 3.5,
-                                   n_repetitions=201)
+    bench = benchmark_pysa_solver(problem_instances,
+                                  gs_energies,
+                                  32,
+                                  30,
+                                  1.0,
+                                  3.5,
+                                  n_repetitions=201)
 
     bench_tts = raw_to_tts(bench, gap_key='energy_gap', ptgt=0.9)
     bench_tts_samps = tts_boots(bench_tts, 50, 0.9)
