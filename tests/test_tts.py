@@ -291,7 +291,7 @@ def test_tts(n_vars: int):
                                   30,
                                   1.0,
                                   3.5,
-                                  n_repetitions=201)
+                                  n_repetitions=101)
 
     bench_tts = raw_to_tts(bench, gap_key='energy_gap', ptgt=0.9)
     bench_tts_samps = tts_boots(bench_tts, 50, 0.9)

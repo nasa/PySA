@@ -268,7 +268,7 @@ def test_sequential_sweep_simulation_qubo(n_vars: int):
 
     # Fix temperature
     betas = np.array([10], dtype=dtype)
-    beta = np.arange(1)
+    beta_idx = np.arange(1)
     # Get initial state
     states = np.random.randint(2, size=(1, n_vars)).astype(dtype)
 
