@@ -95,8 +95,7 @@ class solverbench:
                  n_repetitions=201,
                  instance_set_name="IsingInstances"):
         # Gather all metrics for each instance
-        instance_runtimes = [
-        ]  # Runtime arrays for each repetition, in seconds
+        instance_runtimes = []  # Runtime arrays for each repetition, in seconds
         runs_attempted = []  # Number of total attempted repetitions
         runs_solved = []  # Number of repetitions solved successfully
         energy_gap = []  # Optimization gap (Energy of the Ising Hamiltonian)
@@ -116,8 +115,8 @@ class solverbench:
             best_energies = _res.best_energy[1:]
             success_arr = np.less_equal(best_energies, gs_energies[i])
             runs_solved.append(int(np.sum(success_arr)))
-            configurations.append([[int(si) for si in s]
-                                   for s in _res.best_state[1:]])
+            configurations.append(
+                [[int(si) for si in s] for s in _res.best_state[1:]])
             runtimes = list(_res['runtime (us)'][1:] * 1e-6)
             instance_runtimes.append(runtimes)
             energy_gap.append(
@@ -204,26 +203,31 @@ def raw_to_tts(raw_data, set_name=None, gap_key='energy_gap', ptgt=0.99):
     :return: Processed instance data with TTS information as a dict of numpy arrays.
     """
     instance_idx = np.asarray([
-        _r['instance_idx'] for _r in raw_data
+        _r['instance_idx']
+        for _r in raw_data
         if (set_name is None) or (_r['set'] == set_name)
     ])
     runs_attempted = np.asarray([
-        _r['runs_attempted'] for _r in raw_data
+        _r['runs_attempted']
+        for _r in raw_data
         if (set_name is None) or (_r['set'] == set_name)
     ])
     runs_solved = np.asarray([
-        _r['runs_solved'] for _r in raw_data
+        _r['runs_solved']
+        for _r in raw_data
         if (set_name is None) or (_r['set'] == set_name)
     ])
     runtime_seconds = np.stack([
         np.asarray(_r['runtime_seconds'])
-        for _r in raw_data if (set_name is None) or (_r['set'] == set_name)
+        for _r in raw_data
+        if (set_name is None) or (_r['set'] == set_name)
     ],
                                axis=0)
     runtime_mean_seconds = np.mean(runtime_seconds, axis=1)
     opt_gap = np.stack([
         np.asarray(_r[gap_key])
-        for _r in raw_data if (set_name is None) or (_r['set'] == set_name)
+        for _r in raw_data
+        if (set_name is None) or (_r['set'] == set_name)
     ],
                        axis=0)
     success_array = np.less_equal(opt_gap, 0.0)
@@ -260,8 +264,7 @@ def tts_boots(bench_tts, nboots=20, ptgt=0.99):
             _ttsarr = []
             for j in range(ninst):  # For each instance
                 reps = np.random.choice(np.arange(nrepetitions), nrepetitions)
-                success_arr = np.less_equal(bench_tts['energy_gap'][j, reps],
-                                            0)
+                success_arr = np.less_equal(bench_tts['energy_gap'][j, reps], 0)
                 nsucc = np.sum(success_arr, axis=-1)
                 psucc = nsucc / success_arr.shape[-1]
                 _nts = np.where(np.less(psucc, ptgt),
