@@ -15,16 +15,19 @@ CONDITIONS OF ANY KIND, either express or implied. See the License for the
 specific language governing permissions and limitations under the License.
 */
 
-#ifndef PYSA_DPLL_WALKSAT_H
-#define PYSA_DPLL_WALKSAT_H
+#pragma once
 
-#include "pysa/sat/cnf.hpp"
-#include "pysa/sat/instance.hpp"
+#include <random>
 #include <vector>
+#include "algstd/sat.hpp"
 
 namespace pysa::sat {
-using Formula_WS = std::vector<std::vector<int32_t>>;
-using Instance_WS = pysa::dpll::sat::Instance<pysa::dpll::BitSet<>>;
+
+
+using Clause_WS = algstd::SATClauseV<uint32_t>;
+using Formula_WS = algstd::SATFormula<Clause_WS>;
+using Lit_WS = Clause_WS::literal_type;
+using Instance_WS = algstd::SATIndexer;
 using rng_WS = std::minstd_rand;
 class WalkSatOptimizer {
 public:
@@ -37,18 +40,20 @@ public:
         p(std::min(std::max(p, 0.0), 1.0)) {
     if (random_seed == 0)
       rng.seed(std::random_device()());
-    size_t k = 1;
-    for (auto &clause : instance.clauses) {
+    uint16_t k = 1;
+    for (auto &clause : formula.clauses()) {
       k = std::max(k, clause.size());
     }
     _bestvars.resize(k);
+
     for (size_t v = 0; v < instance.n_vars(); ++v) {
-      std::size_t ncl = instance.clauses[v].size();
+      std::size_t ncl = instance.clauses_by_var[v].size();
       var_true_clauses.emplace_back();
       var_false_clauses.emplace_back();
       for (size_t i = 0; i < ncl; ++i) {
-        size_t cl = instance.clauses[v][i];
-        bool sgn = instance.signs[v].test(i);
+        algstd::ClIdx cli = instance.clauses_by_var[v][i];
+        size_t cl = cli.idx();
+        bool sgn = cli.sign();
         if (sgn) {
           var_false_clauses[v].push_back(cl);
         } else {
@@ -59,14 +64,17 @@ public:
   }
 
   int64_t best_var_flip(size_t clause) {
+    /// Find the best variables to flip in the clause.
+    /// Iterates over each literal in the clause and counts the number of
+    /// clauses that would be broken if it were flipped.
+    /// Returns the minimum number of clauses that would be broken and
+    /// saves the corresponding variables to _bestvars[0:_numbest]
     auto &cl_vars = formula[clause];
     auto new_unsats = (int64_t)instance.n_clauses();
     _numbest = 0;
-    for (std::int32_t lit : cl_vars) { // find the best variable to flip
-      std::size_t var = std::abs(lit) - 1;
-      uint8_t sgn = (lit < 0 ? 1 : 0);
-      // auto &clv = instance.clauses[var];
-      // auto &cls = instance.signs[var];
+    for (const Lit_WS& lit : cl_vars) { // find the best variable to flip
+      std::size_t var = lit.idx();
+      uint8_t sgn = lit.sign();
 
       int32_t lit_new_unsats = 0;
 
@@ -97,15 +105,18 @@ public:
     return new_unsats;
   }
   uint64_t step() {
+    /// Perform a single iteration of the WalkSAT algorithm, if the current state
+    /// is not a satisfying assignment, and returns the current number of unsatisfied clauses.
     if (n_unsat_clauses == 0)
       return 0;
     // randomly select an unsatisfied clause
-    // std::uniform_int_distribution<uint32_t> dist(0, n_unsat_clauses-1);
     uint64_t ucl = rng() % n_unsat_clauses;
     uint64_t cl = _unsat_clauses[ucl];
     std::size_t next_var;
 
     int64_t best_flips_break = best_var_flip(cl);
+    // flip a random variable in the clause if there is no
+    // non-breaking flip with walk probability p
     if (best_flips_break > 0 && p > 0.0 &&
         std::uniform_real_distribution<float>()(rng) < p) {
       next_var = select_random_var(cl);
@@ -127,10 +138,10 @@ public:
     // get satisfied clauses and satisfied literal counts
     for (size_t cl = 0; cl < ncl; ++cl) {
       _clause_sat_nlits[cl] = 0;
-      auto &cl_lits = formula[cl];
-      for (int32_t lit : cl_lits) {
-        std::size_t var = std::abs(lit) - 1;
-        uint8_t sgn = (lit < 0 ? 1 : 0);
+      const Clause_WS &cl_lits = formula[cl];
+      for (const Lit_WS& lit : cl_lits) {
+        std::size_t var = lit.idx();
+        uint8_t sgn = lit.sign();
         if (_state[var] ^ sgn) {
           _clause_sat_nlits[cl] += 1;
         }
@@ -145,9 +156,9 @@ public:
 
 private:
   int64_t first_true_lit(size_t cl_idx) {
-    for (int32_t l : formula[cl_idx]) {
-      uint32_t v2 = abs(l) - 1;
-      uint8_t s = (l < 0);
+    for (const auto& l : formula[cl_idx]) {
+      uint32_t v2 = l.idx();
+      uint8_t s = l.sign();
       if (_state[v2] ^ s) {
         return 2 * v2 + s;
       }
@@ -156,10 +167,10 @@ private:
   }
   size_t select_random_var(size_t cl_idx) {
     // randomly select a variable in the clause to flip
-    auto &cl_vars = formula[cl_idx];
+    const Clause_WS &cl_vars = formula[cl_idx];
     uint32_t ncl = cl_vars.size();
-    int32_t next_lit = cl_vars[rng() % ncl];
-    size_t next_var = std::abs(next_lit) - 1;
+    Lit_WS next_lit = cl_vars[rng() % ncl];
+    size_t next_var = next_lit.idx();
     return next_var;
   }
   size_t select_best_var() {
@@ -236,22 +247,57 @@ private:
   float p = 1.0;
 };
 
-std::tuple<std::vector<uint8_t>, uint64_t, uint64_t>
-walksat_optimize(const Formula_WS &formula, uint64_t max_steps,
-                 uint64_t random_seed = 0, double p = 1.0) {
+inline std::tuple<std::vector<uint8_t>, uint64_t, uint64_t>
+walksat_optimize(const Formula_WS &formula,
+                 uint64_t max_steps,
+                 double p = 1.0,
+                 uint32_t max_unsat = 0,
+                 uint64_t random_seed = 0) {
   /// Performs optimization with walksat and returns the tuple (final_state,
   /// num_steps, num_unsat)
   WalkSatOptimizer wsopt(formula, random_seed, p);
   wsopt.restart_state();
   size_t i = 0;
-  uint64_t n_unsat = formula.size();
+  uint64_t n_unsat = formula.num_clauses();
   for (; i < max_steps; ++i) {
     n_unsat = wsopt.step();
-    if (n_unsat == 0)
+    if (n_unsat <= max_unsat)
       break;
   }
   return {wsopt.state(), i, n_unsat};
 }
+
+typedef std::vector<std::tuple<std::string, size_t, unsigned>> walksat_result_t;
+
+walksat_result_t walksat_optimize_bench(
+    const Formula_WS& formula, 
+    uint32_t max_steps,
+    double p, 
+    uint32_t max_unsat, 
+    uint64_t seed, 
+    double timeout,
+    bool bench);
+  
 } // namespace pysa::sat
 
-#endif // PYSA_DPLL_WALKSAT_H
+struct bitvector_hash {
+  size_t operator()(const std::vector<uint8_t> &vec) const {
+    std::size_t seed = vec.size();
+    for (auto x : vec) {
+      x = x * 0x3b;
+      seed ^= x + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    }
+    return seed;
+  }
+};
+
+inline std::string bitvector_string(const std::vector<uint8_t> &vec) {
+  std::string str(vec.size(), '0');
+  for (std::size_t i = 0; i < vec.size(); ++i) {
+    if (vec[i] > 0) {
+      str[i] = '1';
+    }
+  }
+  return str;
+}
+
