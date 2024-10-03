@@ -28,3 +28,4 @@ add_library(walk-sat walk-sat.cpp)
 # Add executable to compile
 add_executable(walk-sat.x main.cpp)
 target_link_libraries(walk-sat.x walk-sat )
+add_subdirectory(bindings)

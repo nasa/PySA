@@ -1,0 +1,19 @@
+[build-system]
+requires = [
+    "setuptools>=42",
+    "wheel",
+    "cmake>=3.20",
+    "cmake_build_extension",
+    "pybind11",
+    "ninja"
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pysa-walksat"
+authors =[ { name="Humberto Munoz Bauza", email="Humberto.MunozBauza@nasa.gov" }]
+version = "0.0.1"
+requires-python = ">= 3.8"
+
+
+
