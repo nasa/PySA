@@ -33,6 +33,7 @@ struct WalksatResult{
   uint64_t num_unsat = 0;
   size_t preproc_time_us = 0;
   size_t computation_time_us = 0;
+  size_t iterations = 0;
 };
 
 WalksatResult walksat_optimize_core(
@@ -58,7 +59,7 @@ WalksatResult walksat_optimize_core(
   result.num_unsat = n_unsat;
   result.computation_time_us = std::chrono::duration_cast<std::chrono::microseconds>(et_ - it_)
       .count();
-
+  result.iterations = i;
   return result;
 }
 
@@ -132,6 +133,7 @@ PYBIND11_MODULE(bindings, m){
       .def_readonly("num_unsat", &WalksatResult::num_unsat)
       .def_readonly("preproc_time_us", &WalksatResult::preproc_time_us)
       .def_readonly("computation_time_us", &WalksatResult::computation_time_us)
+      .def_readonly("iterations", &WalksatResult::iterations)
       ;
   m.def("walksat_optimize",
         walksat_optimize_py
