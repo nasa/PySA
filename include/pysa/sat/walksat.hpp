@@ -40,6 +40,8 @@ public:
         p(std::min(std::max(p, 0.0), 1.0)) {
     if (random_seed == 0)
       rng.seed(std::random_device()());
+    else
+      rng.seed(random_seed);
     uint16_t k = 1;
     for (auto &clause : formula.clauses()) {
       k = std::max(k, clause.size());

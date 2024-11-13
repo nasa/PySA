@@ -128,7 +128,7 @@ PYBIND11_MODULE(bindings, m){
         };
       })
       ;
-  py::class_<WalksatResult>(m, "_CDCLResult")
+  py::class_<WalksatResult>(m, "_WalksatResult")
       .def_readonly("result_state", &WalksatResult::result_state)
       .def_readonly("num_unsat", &WalksatResult::num_unsat)
       .def_readonly("preproc_time_us", &WalksatResult::preproc_time_us)
