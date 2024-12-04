@@ -1,0 +1,29 @@
+[build-system]
+requires = [
+    "setuptools>=42",
+    "wheel",
+    "cmake>=3.20",
+    "cmake_build_extension",
+    "pybind11",
+    "ninja"
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pysa-ksat"
+authors =[ { name="Humberto Munoz Bauza", email="Humberto.MunozBauza@nasa.gov" }]
+description = "PySA K-SAT Generator"
+version = "0.0.1"
+requires-python = ">= 3.8"
+dependencies = [
+    "numpy>=1.23.5",
+    "scipy>=1.14.1",
+    "matplotlib>=3.9.0",
+    "tqdm>=4.67.0",
+    "networkx >= 2.8.8",
+    "pysa_cdcl @ git+https://github.com/nasa/PySA@pysa-cdcl#egg=pysa_cdcl",
+    "pysa_dpll @ git+https://github.com/nasa/PySA@pysa-dpll-earlystop#egg=pysa_dpll",
+    "pysa_walksat @ git+https://github.com/nasa/PySA@pysa-walksat-pybind#egg=pysa-walksat-pybind"
+]
+
+
