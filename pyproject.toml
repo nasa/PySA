@@ -25,5 +25,6 @@ dependencies = [
     "pysa_dpll @ git+https://github.com/nasa/PySA@pysa-dpll-earlystop#egg=pysa_dpll",
     "pysa_walksat @ git+https://github.com/nasa/PySA@pysa-walksat-pybind#egg=pysa-walksat-pybind"
 ]
+scripts = {ksat_generate="pysa_ksat:ksat_generate"}
 
 

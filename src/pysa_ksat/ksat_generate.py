@@ -86,7 +86,7 @@ def bench_walksat(instances, max_steps=100000, p=0.5, reps=100, rng:np.random.Ge
     return bench_results
 
 
-if __name__ == '__main__':
+def ksat_generate_main():
     parser = argparse.ArgumentParser()
     parser.add_argument("n", type=int)
 
@@ -285,3 +285,5 @@ if __name__ == '__main__':
     # ax3.legend()
     # plt.savefig('lognorm.pdf')
 
+if __name__ == '__main__':
+    ksat_generate_main()
