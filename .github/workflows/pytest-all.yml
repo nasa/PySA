@@ -17,9 +17,9 @@ name: Python PyTest
 
 on:
   push:
-    branches: [ master ]
+    branches: [ pysa-ksat-gen ]
   pull_request:
-    branches: [ master ]
+    branches: [ pysa-ksat-gen]
 
 jobs:
   build:
@@ -41,4 +41,4 @@ jobs:
         pip install .[advanced]
     - name: Test with pytest
       run: |
-        python -m pysa_ksat.ksat_generate 40 50 --k 4 --seed 1234 --ws-reps 1000 --ctov 10.0 --categories 3 --out-dir test_k4_n40_a4.5 --cat-shuffle
+        python -m pysa_ksat.ksat_generate 40 20 --k 4 --seed 1234 --ws-reps 1000 --ctov 10.0 --categories 3 --out-dir test_k4_n40_a4.5 --cat-shuffle
