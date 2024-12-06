@@ -1,21 +1,73 @@
-import argparse
 
 import numpy as np
 import hashlib
-
-import matplotlib.pyplot as plt
-from scipy.stats import gamma, skew, lognorm, kurtosistest, normaltest, expon, weibull_min
 from tqdm import tqdm
 from typing import List, Optional, Union
+from scipy.stats import gamma, skew, lognorm, kurtosistest, normaltest, expon, weibull_min, ecdf
 
-from .util.sat import litv, lvar, SATFormula, SATProp, SATClause
-from .random_ksat import KSatGenerator
-# from pysa2.models.sat import SatK
-# from pysa2.generators.sat.ksat import KSatGenerator
-
-from pysa2_cdcl.bindings import cdcl_optimize, _CDCLResult
+from pysa_ksat.util.sat import litv, lvar, SATFormula, SATProp, SATClause
+from pysa2_cdcl.bindings import cdcl_optimize
 from pysa_dpll.sat import optimize as dpll_optimize
 from pysa_walksat.bindings import walksat_optimize
+
+def bench_walksat(instances, max_steps=100000, p=0.5, reps=100, rng:np.random.Generator = None):
+    bench_results = []
+    rng = np.random.default_rng(rng)
+    for i, inst in enumerate(instances):
+        result_dict = {
+            "solver": "pysa:walksat",
+            "solver_parameters": {"max_steps": max_steps, "p": p},
+            "hardware": "CPU:Apple M2:1",
+            "set": "ANONYMOUS_BATCH",
+            "instance_idx": i,
+            "cutoff_type": "iterations",
+            "cutoff": max_steps,
+            "runs_attempted": reps,
+            "runs_solved": 0,
+            "runtime_seconds": [],
+            "runtime_iterations": [],
+            "hardware_time_seconds": [],
+            "n_unsat_clauses": [],
+            "configurations": []
+        }
+
+        for i in range(reps):
+            wsres = walksat_optimize(inst, max_steps, p, 0, int(rng.integers(0,2**31-1)))
+            if wsres.num_unsat == 0:
+                result_dict["runs_solved"] += 1
+            result_dict["runtime_seconds"].append((wsres.preproc_time_us + wsres.computation_time_us)*1e-6)
+            result_dict["runtime_iterations"].append(wsres.iterations)
+            result_dict["hardware_time_seconds"].append(wsres.computation_time_us*1e-6)
+            result_dict["n_unsat_clauses"].append(wsres.num_unsat)
+            result_dict["configurations"].append(''.join([str(b) for b in np.asarray(wsres.result_state) ]))
+
+        # inline analysis
+        runtime_iters = np.asarray(result_dict["runtime_iterations"])
+        params = gamma.fit(runtime_iters,  floc=np.min(runtime_iters)-1.0, method='mle')
+        params_lognorm = lognorm.fit(runtime_iters, floc=0, method='mle')
+        params_exp = expon.fit(runtime_iters, floc=np.min(runtime_iters)-0.5, method='mle')
+        params_weib = weibull_min.fit(runtime_iters,floc=np.min(runtime_iters)-0.5,  method='mle')
+        result_dict["statistics"] = {
+            'mean': np.mean(runtime_iters),
+            'std': np.std(runtime_iters),
+            'skew': skew(runtime_iters),
+            'mean_log': np.mean(np.log(runtime_iters)),
+            'std_log': np.std(np.log(runtime_iters)),
+            'skew_log': skew(np.log(runtime_iters)),
+            'kurtosis_test': kurtosistest(np.log(runtime_iters)),
+            'normal_test': normaltest(np.log(runtime_iters)),
+        }
+        result_dict["mle"] = {
+            "gamma": list(params),
+            "lognormal": list(params_lognorm),
+            "expon": list(params_exp),
+            "weibull": list(params_weib)
+        }
+        result_dict["ecdf"] = ecdf(runtime_iters)
+        bench_results.append(result_dict)
+    return bench_results
+
+
 
 
 class SatGen:

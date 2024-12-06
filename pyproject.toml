@@ -20,11 +20,15 @@ dependencies = [
     "scipy>=1.14.1",
     "matplotlib>=3.9.0",
     "tqdm>=4.67.0",
-    "networkx >= 2.8.8",
+    "networkx >= 2.8.8"
+]
+scripts = {ksat_generate="pysa_ksat:ksat_generate"}
+
+[project.optional-dependencies]
+advanced = [
     "pysa_cdcl @ git+https://github.com/nasa/PySA@pysa-cdcl#egg=pysa_cdcl",
     "pysa_dpll @ git+https://github.com/nasa/PySA@pysa-dpll-earlystop#egg=pysa_dpll",
     "pysa_walksat @ git+https://github.com/nasa/PySA@pysa-walksat-pybind#egg=pysa-walksat-pybind"
 ]
-scripts = {ksat_generate="pysa_ksat:ksat_generate"}
 
 
