@@ -23,6 +23,7 @@ if(SATTRACE)
     add_compile_definitions("SATTRACE")
 endif ()
 add_library(cdcl_lib STATIC cdcl.cpp)
+set_target_properties(cdcl_lib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 add_executable(test_cdcl ./tests/cdcl_tests.cpp cdcl.cpp)
 add_executable(pysa_cdcl main.cpp cdcl.cpp)
 
