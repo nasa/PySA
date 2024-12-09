@@ -40,4 +40,4 @@ jobs:
     - name: Test with pytest
       run: |
         python -m pysa_ksat.ksat_generate 40 20 --k 4 --seed 1234 --ws-reps 1000 --ctov 10.0 --categories 3 --out-dir test_k4_n40_a4.5 --cat-shuffle
-        head ./test_k4_n40_a4.5/000.cnf
+        head ./test_k4_n40_a4.5/instances/C00/000.cnf
