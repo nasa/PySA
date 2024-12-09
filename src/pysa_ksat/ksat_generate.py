@@ -4,7 +4,7 @@ from pathlib import Path
 import numpy as np
 import pickle
 import matplotlib.pyplot as plt
-from scipy.stats import ecdf
+from pysa_ksat.util.scipy_survival import ecdf
 
 from pysa_ksat import KSatAdvancedException
 from pysa_ksat.random_ksat import KSatGenerator
