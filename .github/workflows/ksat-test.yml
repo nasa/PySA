@@ -1,0 +1,42 @@
+# Author: Humberto Munoz Bauza (humberto.munozbauza@nasa.gov)
+#
+# Copyright © 2023, United States Government, as represented by the Administrator
+# of the National Aeronautics and Space Administration. All rights reserved.
+#
+# The PySA, a powerful tool for solving optimization problems is licensed under
+# the Apache License, Version 2.0 (the "License"); you may not use this file
+# except in compliance with the License. You may obtain a copy of the License at
+# http://www.apache.org/licenses/LICENSE-2.0.
+#
+# Unless required by applicable law or agreed to in writing, software distributed
+# under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+# CONDITIONS OF ANY KIND, either express or implied. See the License for the
+# specific language governing permissions and limitations under the License.
+
+name: KSatPython Test
+
+on:
+  push:
+    branches: [ pysa-ksat-gen ]
+  pull_request:
+    branches: [ pysa-ksat-gen]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.8, 3.9]
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install .
+    - name: Test generator
+      run: |
+        python -m pysa_ksat.ksat_generate 40 20 --k 4 --seed 1234 --ctov 10.0 --out-dir test_k4_n40_a4.5

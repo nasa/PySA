@@ -13,17 +13,15 @@
 # CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 
-name: Python PyTest
+name: KSat-Advanced Python Test
 
 on:
   push:
     branches: [ pysa-ksat-gen ]
   pull_request:
     branches: [ pysa-ksat-gen]
-
 jobs:
   build:
-
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -42,3 +40,4 @@ jobs:
     - name: Test with pytest
       run: |
         python -m pysa_ksat.ksat_generate 40 20 --k 4 --seed 1234 --ws-reps 1000 --ctov 10.0 --categories 3 --out-dir test_k4_n40_a4.5 --cat-shuffle
+        head ./test_k4_n40_a4.5/000.cnf
