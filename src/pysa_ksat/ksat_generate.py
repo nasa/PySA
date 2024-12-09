@@ -9,7 +9,7 @@ from scipy.stats import ecdf
 from pysa_ksat import KSatAdvancedException
 from pysa_ksat.random_ksat import KSatGenerator
 from pysa_ksat.util.sat import write_cnf, SATFormula
-from scipy.stats._survival import EmpiricalDistributionFunction
+from pysa_ksat.util.scipy_survival import EmpiricalDistributionFunction
 
 
 

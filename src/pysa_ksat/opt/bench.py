@@ -3,7 +3,8 @@ import numpy as np
 import hashlib
 from tqdm import tqdm
 from typing import List, Optional, Union
-from scipy.stats import gamma, skew, lognorm, kurtosistest, normaltest, expon, weibull_min, ecdf
+from scipy.stats import gamma, skew, lognorm, kurtosistest, normaltest, expon, weibull_min
+from pysa_ksat.util.scipy_survival import ecdf
 
 from pysa_ksat.util.sat import litv, lvar, SATFormula, SATProp, SATClause
 from pysa2_cdcl.bindings import cdcl_optimize
