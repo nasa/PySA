@@ -14,58 +14,64 @@ from pysa_walksat.bindings import walksat_optimize
 def bench_walksat(instances, max_steps=100000, p=0.5, reps=100, rng:np.random.Generator = None):
     bench_results = []
     rng = np.random.default_rng(rng)
-    for i, inst in enumerate(instances):
-        result_dict = {
-            "solver": "pysa:walksat",
-            "solver_parameters": {"max_steps": max_steps, "p": p},
-            "hardware": "CPU:Apple M2:1",
-            "set": "ANONYMOUS_BATCH",
-            "instance_idx": i,
-            "cutoff_type": "iterations",
-            "cutoff": max_steps,
-            "runs_attempted": reps,
-            "runs_solved": 0,
-            "runtime_seconds": [],
-            "runtime_iterations": [],
-            "hardware_time_seconds": [],
-            "n_unsat_clauses": [],
-            "configurations": []
-        }
+    with tqdm(total=len(instances)) as pbar:
+        for i, inst in enumerate(instances):
+            result_dict = {
+                "solver": "pysa:walksat",
+                "solver_parameters": {"max_steps": max_steps, "p": p},
+                "hardware": "CPU:Apple M2:1",
+                "set": "ANONYMOUS_BATCH",
+                "instance_idx": i,
+                "cutoff_type": "iterations",
+                "cutoff": max_steps,
+                "runs_attempted": reps,
+                "runs_solved": 0,
+                "runtime_seconds": [],
+                "runtime_iterations": [],
+                "hardware_time_seconds": [],
+                "n_unsat_clauses": [],
+                "configurations": []
+            }
 
-        for i in range(reps):
-            wsres = walksat_optimize(inst, max_steps, p, 0, int(rng.integers(0,2**31-1)))
-            if wsres.num_unsat == 0:
-                result_dict["runs_solved"] += 1
-            result_dict["runtime_seconds"].append((wsres.preproc_time_us + wsres.computation_time_us)*1e-6)
-            result_dict["runtime_iterations"].append(wsres.iterations)
-            result_dict["hardware_time_seconds"].append(wsres.computation_time_us*1e-6)
-            result_dict["n_unsat_clauses"].append(wsres.num_unsat)
-            result_dict["configurations"].append(''.join([str(b) for b in np.asarray(wsres.result_state) ]))
+            for _ in range(reps):
+                wsres = walksat_optimize(inst, max_steps, p, 0, int(rng.integers(0,2**31-1)))
+                if wsres.num_unsat == 0:
+                    result_dict["runs_solved"] += 1
+                result_dict["runtime_seconds"].append((wsres.preproc_time_us + wsres.computation_time_us)*1e-6)
+                result_dict["runtime_iterations"].append(wsres.iterations)
+                result_dict["hardware_time_seconds"].append(wsres.computation_time_us*1e-6)
+                result_dict["n_unsat_clauses"].append(wsres.num_unsat)
+                result_dict["configurations"].append(''.join([str(b) for b in np.asarray(wsres.result_state) ]))
 
-        # inline analysis
-        runtime_iters = np.asarray(result_dict["runtime_iterations"])
-        params = gamma.fit(runtime_iters,  floc=np.min(runtime_iters)-1.0, method='mle')
-        params_lognorm = lognorm.fit(runtime_iters, floc=0, method='mle')
-        params_exp = expon.fit(runtime_iters, floc=np.min(runtime_iters)-0.5, method='mle')
-        params_weib = weibull_min.fit(runtime_iters,floc=np.min(runtime_iters)-0.5,  method='mle')
-        result_dict["statistics"] = {
-            'mean': np.mean(runtime_iters),
-            'std': np.std(runtime_iters),
-            'skew': skew(runtime_iters),
-            'mean_log': np.mean(np.log(runtime_iters)),
-            'std_log': np.std(np.log(runtime_iters)),
-            'skew_log': skew(np.log(runtime_iters)),
-            'kurtosis_test': kurtosistest(np.log(runtime_iters)),
-            'normal_test': normaltest(np.log(runtime_iters)),
-        }
-        result_dict["mle"] = {
-            "gamma": list(params),
-            "lognormal": list(params_lognorm),
-            "expon": list(params_exp),
-            "weibull": list(params_weib)
-        }
-        result_dict["ecdf"] = ecdf(runtime_iters)
-        bench_results.append(result_dict)
+            # inline analysis
+            runtime_iters = np.asarray(result_dict["runtime_iterations"])
+            result_dict["statistics"] = {
+                'mean': np.mean(runtime_iters),
+                'std': np.std(runtime_iters),
+                'skew': skew(runtime_iters),
+                'mean_log': np.mean(np.log(runtime_iters)),
+                'std_log': np.std(np.log(runtime_iters)),
+                'skew_log': skew(np.log(runtime_iters)),
+                'kurtosis_test': kurtosistest(np.log(runtime_iters)),
+                'normal_test': normaltest(np.log(runtime_iters)),
+            }
+            try:
+                params = gamma.fit(runtime_iters, floc=np.min(runtime_iters) - 1.0, method='mle')
+                params_lognorm = lognorm.fit(runtime_iters, floc=0, method='mle')
+                params_exp = expon.fit(runtime_iters, floc=np.min(runtime_iters) - 0.5, method='mle')
+                params_weib = weibull_min.fit(runtime_iters, floc=np.min(runtime_iters) - 0.5, method='mle')
+                result_dict["mle"] = {
+                    "gamma": list(params),
+                    "lognormal": list(params_lognorm),
+                    "expon": list(params_exp),
+                    "weibull": list(params_weib)
+                }
+            except ValueError:
+                print(f"MLE estimation failed for instance idx {i}")
+                result_dict["mle"] = None
+            result_dict["ecdf"] = ecdf(runtime_iters)
+            bench_results.append(result_dict)
+            pbar.update(1)
     return bench_results
 
 
@@ -83,18 +89,25 @@ class SatGen:
         self._last_sat_fraction = None
         self._instance_sha = None
 
-    def add_instances(self, generator, num_insts, max_tries=None, filter_sat=True, rng: Optional[Union[int, np.random.Generator]]=None):
+    def add_instances(self, generator, num_insts, max_tries=None, filter_sat='cdcl', rng: Optional[Union[int, np.random.Generator]]=None):
         """
         Add SAT instances from a generator, optionally filtering by solvable instances
         """
-        if filter_sat:
+        if filter_sat is not None:
             new_instances = []
             new_sols = []
             with tqdm(total=num_insts) as pbar:
                 actual_tries = max_tries
                 for i in range(max_tries):
                     _clauses = generator.generate(rng=rng)
-                    _res = cdcl_optimize(_clauses, True)
+                    if filter_sat == 'cdcl':
+                        _res = cdcl_optimize(_clauses, True)
+                    elif filter_sat == 'walksat':
+                        _res = walksat_optimize(_clauses,  100000*self._n, 0.5, 0, int(rng.integers(0,2**31-1)))
+                        if _res.num_unsat > 0:
+                            continue
+                    else:
+                        raise RuntimeError(f"Unknown filter method {filter_sat}")
                     if _res.result_state is not None:
                         new_instances.append(_clauses)
                         new_sols.append([np.asarray(_res.result_state, dtype=np.int8)])

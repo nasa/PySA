@@ -42,8 +42,10 @@ def ksat_generate_main():
     #Advanced Options
     try:
         import pysa_ksat.opt
+        parser.add_argument("--filter-sat", default='cdcl', choices=['off', 'cdcl', 'walksat'])
         parser.add_argument("--max-tries-per-inst", type=int, default=200)
         parser.add_argument("--ws-reps", type=int, default=100)
+        parser.add_argument("--ws-sweeps-per-rep", type=int, default=100000)
         parser.add_argument("--categories", type=int, default=3)
         parser.add_argument("--cat-shuffle", action='store_true')
         parser.add_argument("--enumerate-solutions", action='store_true')
@@ -99,7 +101,8 @@ def ksat_generate_main():
             gen = SatGen(args.n, m, k=args.k)
         # Generate instances, or load if available
             print("Generating instances ...")
-            gen.add_instances(rgen, num_insts, max_tries=args.max_tries_per_inst*num_insts, filter_sat=True, rng=rng)
+            gen.add_instances(rgen, num_insts, max_tries=args.max_tries_per_inst*num_insts,
+                              filter_sat=(None if args.filter_sat == 'off' else args.filter_sat), rng=rng)
         # Evaluate the backbone
             if args.eval_backbone:
                 print("Evaluating backbones ...")
@@ -118,7 +121,7 @@ def ksat_generate_main():
                 bench_results = pickle.load(f)
         else:
             print("Running walksat")
-            bench_results = bench_walksat(gen._instances, reps=args.ws_reps, rng=rng)
+            bench_results = bench_walksat(gen._instances, max_steps=args.ws_sweeps_per_rep * n, reps=args.ws_reps, rng=rng)
             with open(ws_name, 'wb') as f:
                 pickle.dump(bench_results, f)
 
@@ -130,13 +133,14 @@ def ksat_generate_main():
 
         # Survival function analysis
         ecdfs = [ecdf(res["runtime_iterations"]) for res in bench_results]
+        num_ecdfs = min(len(ecdfs), 50)
         lines_per_plot = 5
         ncols = 2
-        nrows = max(len(ecdfs) // (lines_per_plot * ncols), 1)
+        nrows = max(num_ecdfs // (lines_per_plot * ncols), 1)
         fig, axes = plt.subplots(nrows, ncols, figsize=(8, 16), layout='tight')
         for axi, ax in enumerate(axes.flatten()):
             for idxi in range(lines_per_plot):
-                ii = lines_per_plot * axi +  idxi
+                ii = len(ecdfs) - num_ecdfs + lines_per_plot * axi +  idxi
                 if ii > len(ecdfs):
                     break
                 i = sort_tts[ii]
@@ -144,9 +148,11 @@ def ksat_generate_main():
                 plot_chf_ci(ecdfs[i].sf, 0.90, ax, alpha=0.2, color=f'C{i}')
 
             ax.set_xlim(1, 1.5*np.max(tts99))
-            #ax.set_xscale('log')
+            ax.set_xscale('log')
+            ax.set_xlabel('WS Iterations')
             ax.set_ylim(0.01, 10)
-            #ax.set_yscale('log')
+            ax.set_yscale('log')
+            ax.set_ylabel('CHF')
         plt.savefig(out_dir / "sample_chf.pdf")
 
     # Categorization
