@@ -24,10 +24,17 @@ State = List[float]
 
 
 @numba.njit(cache=True, fastmath=True, nogil=True, parallel=False)
-def pt(states: List[State], energies: List[float],
+def pt(states: List[State], energies: List[float], beta_idx: List[int],
        betas: List[float]) -> NoReturn:
     """
   Parallel tempering move.
+    states: [n_replicas, ...]  Array of replicas
+    energies: [n_replicas] Array of energies of each replica
+    beta_idx: [n_replicas] The replica index currently assigned to each beta,
+        i.e. inverse temperature K is currently used for simulating replica beta_idx[K]
+    betas: [n_replicas] Sequential array of inverse temperatures.
+
+    This function only modifies the order of beta_idx.
   """
 
     # Get number of replicas
@@ -43,11 +50,12 @@ def pt(states: List[State], energies: List[float],
         k2 = n_replicas - k - 2
 
         # Compute delta energy
-        de = (energies[k1] - energies[k2]) * (betas[k1] - betas[k2])
+        de = (energies[beta_idx[k1]] - energies[beta_idx[k2]]) * (betas[k1] -
+                                                                  betas[k2])
 
         # Accept/reject following Metropolis
         if de >= 0 or np.random.random() < np.exp(de):
-            betas[k1], betas[k2] = betas[k2], betas[k1]
+            beta_idx[k1], beta_idx[k2] = beta_idx[k2], beta_idx[k1]
 
 
 def get_problem_matrix(instance: List[Tuple[int, int, float]]) -> Matrix:
