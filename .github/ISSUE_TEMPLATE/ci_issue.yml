@@ -1,0 +1,87 @@
+name: CI/Build Issue
+description: Report a problem with continuous integration or build processes
+title: "[CI]: "
+labels: ["ci", "infrastructure"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a CI/build issue. Please provide as much detail as possible.
+  
+  - type: dropdown
+    id: workflow
+    attributes:
+      label: Which workflow is affected?
+      options:
+        - CI (ci.yml)
+        - Python PyTest (python-pytest.yml)
+        - Code Formatting (python-yapf.yml)
+        - Examples (python-example.yml)
+        - Tutorials (python-tutorials.yml)
+        - Code Coverage (coverage.yml)
+        - PR Comment (pr-comment.yml)
+        - Other
+    validations:
+      required: true
+  
+  - type: input
+    id: workflow-run
+    attributes:
+      label: Workflow Run URL
+      description: Link to the failed workflow run
+      placeholder: https://github.com/SECQUOIA/PySA/actions/runs/...
+    validations:
+      required: false
+  
+  - type: dropdown
+    id: python-version
+    attributes:
+      label: Python Version
+      options:
+        - "3.8"
+        - "3.9"
+        - "3.10"
+        - "3.11"
+        - "3.12"
+        - All versions
+        - Not applicable
+    validations:
+      required: false
+  
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What happened? What did you expect to happen?
+      placeholder: Describe the CI issue...
+    validations:
+      required: true
+  
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant Log Output
+      description: Please copy and paste any relevant log output from the workflow
+      render: shell
+    validations:
+      required: false
+  
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: How can we reproduce this issue locally?
+      placeholder: |
+        1. Run command '...'
+        2. See error '...'
+    validations:
+      required: false
+  
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I have checked the CI documentation (docs/CI_INFRASTRUCTURE.md)
+        - label: I have verified this issue exists on the latest commit
+        - label: I have checked existing issues for duplicates

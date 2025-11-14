@@ -1,0 +1,23 @@
+# Development and Testing Dependencies
+# Install with: pip install -r requirements-dev.txt
+
+# Testing
+pytest>=7.0.0
+pytest-cov>=4.0.0
+pytest-xdist>=3.0.0
+
+# Code Formatting
+yapf==0.32.0
+
+# Examples
+termplotlib
+
+# Tutorials (optional - large dependencies)
+# Uncomment if you want to run tutorials locally
+# papermill
+# matplotlib
+# plotly
+# jupyter
+# hyperopt
+# torch
+# torchvision

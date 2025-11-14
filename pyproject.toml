@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pysa"
+version = "0.1.0"
+description = "Fast Simulated Annealing Implemented in Native Python"
+authors = [
+    {name = "Salvatore Mandrà"},
+]
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "numpy",
+    "scipy",
+    "numba",
+    "pandas",
+    "tqdm",
+    "more_itertools"
+]
+license = {file = "LICENSE"}
+keywords = ["simulator", "simulated annealing"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12"
+]
+[project.urls]
+BugReports = "https://github.com/SECQUOIA/PySA/issues"
+Source = "https://github.com/SECQUOIA/PySA/"

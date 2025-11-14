@@ -6,3 +6,9 @@ _*.so
 .ipynb_checkpoints/
 pysa.egg-info/
 build/
+
+# Coverage reports
+.coverage
+coverage.xml
+htmlcov/
+.pytest_cache/

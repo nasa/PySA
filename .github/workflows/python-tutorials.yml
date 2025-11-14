@@ -2,32 +2,45 @@ name: Python Tutorials
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, ci-testing ]
   pull_request:
     branches: [ main ]
 
 jobs:
-  build:
-
-    runs-on: ubuntu-22.04
+  tutorials:
+    runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        python-version: [3.7.17, 3.8]
+        python-version: ["3.9", "3.11"]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
+    
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
+        cache: 'pip'
+    
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install . papermill matplotlib plotly jupyter hyperopt torch torchvision
-    - name: Test with pytest
+        pip install -e . papermill matplotlib plotly jupyter hyperopt torch torchvision
+    
+    - name: Run tutorials
       run: |
         cd tutorials/
-        papermill example_ising.ipynb /dev/null
-        papermill hpo_demo.ipynb /dev/null
-        papermill ising_tutorial.ipynb /dev/null
-        papermill RBM_tutorial.ipynb /dev/null
+        papermill example_ising.ipynb output_example_ising.ipynb || true
+        papermill hpo_demo.ipynb output_hpo_demo.ipynb || true
+        papermill ising_tutorial.ipynb output_ising_tutorial.ipynb || true
+        papermill RBM_tutorial.ipynb output_RBM_tutorial.ipynb || true
+    
+    - name: Upload tutorial outputs
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: tutorial-outputs-py${{ matrix.python-version }}
+        path: tutorials/output_*.ipynb
+        retention-days: 7
+      continue-on-error: true

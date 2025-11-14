@@ -48,7 +48,11 @@ def partition_function_post(solution: pd.DataFrame):
         cur_betas = 1 / cur_temps
         cur_energies = energies[s]
 
-        log_omegas += [get_log_omega(cur_betas, cur_energies)]
+        beta_idx = list(range(len(cur_betas)))
+        log_omegas += [
+            get_log_omega(np.array(cur_betas), np.array(beta_idx),
+                          np.array(cur_energies))
+        ]
 
     logZ0 = n * np.log(2)  # assuming the uniform distribution with all
     #unnormalized probabilities set to one
@@ -135,7 +139,7 @@ def omegas_to_partition(log_omegas: Vector, logZ0: float):
 
 
 def uniform_prob_initialization(n: int, problem_type: str, initial_args=None):
-    '''Randomly initializes a single state of length n.  This returns a 
+    r'''Randomly initializes a single state of length n.  This returns a 
     vector representing the randomly initialized state
     Currently supports problem_type: "ising" -> randomly chooses \pm 1
                                      "qubo" -> randomly chooses 0 or 1'''
@@ -175,7 +179,7 @@ def uniform_partition_fun(n: int):
 def bernoulli_prob_initialization(n: int,
                                   problem_type: str,
                                   initial_args=[0.5]):
-    '''Randomly initializes a single state of length n.  This returns a 
+    r'''Randomly initializes a single state of length n.  This returns a 
     vector representing the randomly initialized state
     Currently supports problem_type: "ising" -> randomly chooses \pm 1
                                      "qubo" -> randomly chooses 0 or 1

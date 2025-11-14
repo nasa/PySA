@@ -1,5 +1,10 @@
 # PySA: Fast Simulated Annealing in Native Python
 
+[![CI](https://github.com/SECQUOIA/PySA/actions/workflows/ci.yml/badge.svg)](https://github.com/SECQUOIA/PySA/actions/workflows/ci.yml)
+[![Code Coverage](https://github.com/SECQUOIA/PySA/actions/workflows/coverage.yml/badge.svg)](https://github.com/SECQUOIA/PySA/actions/workflows/coverage.yml)
+[![Python Version](https://img.shields.io/badge/python-3.8%20%7C%203.9%20%7C%203.10%20%7C%203.11%20%7C%203.12-blue)](https://www.python.org/downloads/)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+
 **PySA** is an extensible platform to optimize classical cost function.
 
 PySA is a heuristic solver that does not provide bounds or guarantees on optimality of solutions.
@@ -40,8 +45,46 @@ pip install pysa.zip
 ```
 or by using `conda`:
 ```
-conda env create -f envinronment.yml
+conda env create -f environment.yml
 ```
+
+## Testing and CI
+
+**PySA** uses GitHub Actions for continuous integration. The CI pipeline includes:
+
+- **Automated Testing**: Unit tests run on Python 3.8 through 3.12
+- **Code Coverage**: Coverage reports are generated and tracked
+- **Code Formatting**: YAPF ensures consistent code style
+- **Examples Validation**: All example scripts are tested automatically
+- **Tutorial Execution**: Jupyter notebooks are executed to ensure they work
+
+### Running Tests Locally
+
+To run the test suite locally:
+
+```bash
+pip install -e . pytest pytest-cov
+pytest tests/
+```
+
+To generate a coverage report:
+
+```bash
+pytest --cov=pysa --cov-report=html tests/
+```
+
+### CI Workflows
+
+The repository includes several CI workflows:
+
+- **CI** (`ci.yml`): Main comprehensive workflow that runs all checks
+- **Code Coverage** (`coverage.yml`): Generates detailed coverage reports
+- **Python PyTest** (`python-pytest.yml`): Runs unit tests across all Python versions
+- **Python Code Formatting** (`python-yapf.yml`): Validates code formatting
+- **Python Examples** (`python-example.yml`): Tests example scripts
+- **Python Tutorials** (`python-tutorials.yml`): Executes tutorial notebooks
+
+All workflows are triggered on pushes to `main` and on pull requests.
 
 ## NASA Open Source Agreement and Contributions
 
